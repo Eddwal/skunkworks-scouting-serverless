@@ -8,7 +8,8 @@
       "firebase-debug.log",
       "firebase-debug.*.log",
       "functions"
-    ]
+    ],
+    "alwaysDeployFromSource": true
   },
   "emulators": {
     "apphosting": {
@@ -34,6 +35,7 @@
     "singleProjectMode": true
   },
   "storage": {
-    "rules": "storage.rules"
+    "rules": "storage.rules",
+    "bucket": "skunkworks-scouting.firebasestorage.app"
   }
 }
