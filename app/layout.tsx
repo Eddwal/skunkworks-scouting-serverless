@@ -2,7 +2,11 @@ import { Geist, Geist_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/googl
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
+import { FirebaseSWProvider } from "@/lib/firebase/FirebaseSWProvider"
+import { AuthProvider } from "@/hooks/use-auth"
+import { AuthGuard } from "@/components/auth-guard"
+import { cn } from "@/lib/utils"
+import { Toaster } from "@/components/ui/sonner"
 
 const spaceGroteskHeading = Space_Grotesk({subsets:['latin'],variable:'--font-heading'});
 
@@ -26,7 +30,14 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", ibmPlexSans.variable, spaceGroteskHeading.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <FirebaseSWProvider>
+            <AuthProvider>
+              <AuthGuard>{children}</AuthGuard>
+            </AuthProvider>
+          </FirebaseSWProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )
