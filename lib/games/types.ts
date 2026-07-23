@@ -19,7 +19,6 @@ export interface PitScoutConfig {
 }
 
 export interface MatchScoutConfig {
-  // To be defined later when match scouting is implemented
   schema?: z.ZodObject<any>;
   Component?: React.FC<FormComponentProps>;
 }
@@ -31,6 +30,5 @@ export interface GameConfig {
   pitScout: PitScoutConfig;
   matchScout?: MatchScoutConfig;
 
-  // Optional dashboard component
   DashboardComponent?: React.FC;
 }

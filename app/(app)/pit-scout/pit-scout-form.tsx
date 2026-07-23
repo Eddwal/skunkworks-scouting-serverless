@@ -1,19 +1,15 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { db, storage } from '@/lib/firebase/firebase-client';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useEvent } from '@/hooks/use-event';
-import { useSearchParams } from 'next/navigation';
 import { getGameConfig, DEFAULT_YEAR } from '@/lib/games';
 import { SetupStep } from '@/components/pit-scouting/setup-step';
 import { PictureStep } from '@/components/pit-scouting/picture-step';
@@ -32,7 +28,6 @@ function PitScoutFormContent() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const { events, activeEvent } = useEvent();
   
-  const searchParams = useSearchParams();
   const year = activeEvent?.id ? activeEvent.id.substring(0, 4) : DEFAULT_YEAR;
   const gameConfig = getGameConfig(year);
 
@@ -67,7 +62,6 @@ function PitScoutFormContent() {
     if (step === 1) fieldsToValidate = ['eventId', 'teamId'];
     if (step === 2) fieldsToValidate = ['robot'];
     if (step === 3) fieldsToValidate = ['capabilities'];
-    // Step 4 is picture, no validation needed strictly
     
     if (fieldsToValidate.length > 0) {
       const isValid = await trigger(fieldsToValidate as any);
@@ -90,7 +84,6 @@ function PitScoutFormContent() {
       const dbTeamId = data.teamId.startsWith('frc') ? data.teamId : `frc${data.teamId}`;
       let uploadedPhotoUrl = data.photoUrl;
 
-      // Upload image if present
       if (photoFile) {
         const fileExtension = photoFile.name.split('.').pop() || 'jpg';
         const storageRef = ref(storage, `events/${data.eventId}/pitScout/${dbTeamId}.${fileExtension}`);
@@ -142,7 +135,6 @@ function PitScoutFormContent() {
       </div>
 
       <div className="min-h-[300px]">
-        {/* Step 1: Setup */}
         {step === 1 && (
           <SetupStep 
             control={control} 
@@ -153,17 +145,14 @@ function PitScoutFormContent() {
           />
         )}
 
-        {/* Step 2: Robot */}
         {step === 2 && (
           <PitScoutRobot control={control as any} errors={errors} register={register as any} setValue={setValue as any} watch={watch as any} />
         )}
 
-        {/* Step 3: Capabilities */}
         {step === 3 && (
           <PitScoutCapabilities control={control as any} errors={errors} register={register as any} setValue={setValue as any} watch={watch as any} />
         )}
 
-        {/* Step 4: Picture */}
         {step === 4 && (
           <PictureStep 
             photoFile={photoFile} 
@@ -173,7 +162,6 @@ function PitScoutFormContent() {
           />
         )}
 
-        {/* Step 5: Review */}
         {step === 5 && (
           <ReviewStep 
             formData={watch()} 

@@ -11,3 +11,19 @@ export const dimensionsSchema = z.object({
   height: z.coerce.number({ message: "Height must be a valid number" }).min(1, "Height is required"),
   weight: z.coerce.number({ message: "Weight must be a valid number" }).min(1, "Weight is required"),
 });
+
+export const capRowSchema = z.object({
+  can: z.boolean().default(false),
+  auto: z.boolean().default(false)
+});
+
+export const canOnlySchema = z.object({
+  can: z.boolean().default(false)
+});
+
+export const baseRobotSchema = dimensionsSchema.merge(driveTrainSchema);
+
+export const baseCapabilitiesSchema = z.object({
+  autoDescription: z.string().default(''),
+  notes: z.string().default(''),
+});

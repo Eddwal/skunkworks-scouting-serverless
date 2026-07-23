@@ -19,14 +19,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+
 import { toast } from "sonner"
 import Link from "next/link"
-import { ArrowLeftIcon, TrashIcon, CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react"
+import { ArrowLeftIcon, TrashIcon } from "@phosphor-icons/react"
 import { db } from "@/lib/firebase/firebase-client"
 import { collection, onSnapshot, query, orderBy, getDocs } from "firebase/firestore"
 
@@ -51,7 +47,6 @@ export default function SchedulePage() {
   const [loadingMatches, setLoadingMatches] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState("")
-  const [isScheduleOpen, setIsScheduleOpen] = useState(true)
 
   useEffect(() => {
     if (!activeEventId) {
@@ -157,21 +152,9 @@ export default function SchedulePage() {
         )}
         
         {activeEvent ? (
-          <Collapsible
-            open={isScheduleOpen}
-            onOpenChange={setIsScheduleOpen}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CollapsibleTrigger
-                  render={
-                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      {isScheduleOpen ? <CaretUpIcon className="size-5" /> : <CaretDownIcon className="size-5" />}
-                      <span className="sr-only">Toggle schedule</span>
-                    </Button>
-                  }
-                />
                 <h2 className="text-xl font-semibold tracking-tight">{activeEvent.name} Schedule</h2>
               </div>
               <div className="flex items-center gap-4">
@@ -223,7 +206,7 @@ export default function SchedulePage() {
               </div>
             </div>
             
-            <CollapsibleContent className="space-y-6">
+            <div className="space-y-6">
             {loadingMatches ? (
               <div className="text-center text-muted-foreground p-8">Loading matches...</div>
             ) : matches.length > 0 ? (
@@ -273,8 +256,8 @@ export default function SchedulePage() {
                 No matches found for this event.
               </div>
             )}
-            </CollapsibleContent>
-          </Collapsible>
+            </div>
+          </div>
         ) : (
           <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
             No events available. {claims?.admin ? "Import an event to get started." : ""}

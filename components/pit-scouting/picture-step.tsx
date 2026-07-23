@@ -27,7 +27,6 @@ export function PictureStep({ photoFile, setPhotoFile, photoPreview, setPhotoPre
 
     setIsCompressing(true);
     try {
-      // Compress the image
       const options = {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
@@ -36,12 +35,10 @@ export function PictureStep({ photoFile, setPhotoFile, photoPreview, setPhotoPre
       
       const compressedFile = await imageCompression(file, options);
       
-      // Clear old preview if any
       if (photoPreview) {
         URL.revokeObjectURL(photoPreview);
       }
       
-      // Set new state
       const previewUrl = URL.createObjectURL(compressedFile);
       setPhotoFile(compressedFile);
       setPhotoPreview(previewUrl);

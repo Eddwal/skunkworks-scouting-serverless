@@ -4,9 +4,9 @@ import { PitScoutRobot } from './pit-scout/robot';
 import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
 
-export const Game2026: GameConfig = {
-  year: '2026',
-  name: 'Rebuilt',
+export const Game2027: GameConfig = {
+  year: '2027',
+  name: 'Biocore',
   pitScout: {
     robotSchema,
     capabilitiesSchema,

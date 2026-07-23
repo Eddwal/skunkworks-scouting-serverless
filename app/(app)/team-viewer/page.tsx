@@ -5,6 +5,7 @@ import { useEvent } from '@/hooks/use-event';
 import { db } from '@/lib/firebase/firebase-client';
 import { collection, getDocs } from 'firebase/firestore';
 import { getGameConfig } from '@/lib/games';
+import { getPitScoutConverter, PitScoutData } from '@/lib/firebase/converters';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -13,16 +14,18 @@ import { CircleNotch, ArrowSquareOut } from '@phosphor-icons/react';
 
 export default function TeamViewerPage() {
   const { activeEvent } = useEvent();
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<(PitScoutData & { id: string })[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!activeEvent) return;
+    const gameConfig = getGameConfig(activeEvent.id.substring(0, 4));
+
     const fetchTeams = async () => {
       setLoading(true);
       try {
-        const pitScoutRef = collection(db, 'events', activeEvent.id, 'pitScout');
+        const pitScoutRef = collection(db, 'events', activeEvent.id, 'pitScout').withConverter(getPitScoutConverter(gameConfig));
         const snapshot = await getDocs(pitScoutRef);
         const fetchedTeams = snapshot.docs.map(doc => ({
           id: doc.id,
