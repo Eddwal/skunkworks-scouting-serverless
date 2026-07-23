@@ -1,5 +1,5 @@
 import 'server-only';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -15,7 +15,16 @@ if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_EMULAT
 }
 
 if (getApps().length <= 0) {
-  initializeApp({ credential: cert(firebaseAdminConfig) });
+  if (firebaseAdminConfig.privateKey) {
+    // Use explicit credentials for local development
+    initializeApp({ credential: cert(firebaseAdminConfig) });
+  } else {
+    // In Firebase App Hosting, use Application Default Credentials
+    initializeApp({ 
+      credential: applicationDefault(),
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    });
+  }
 }
 
 export const adminAuth = getAuth();

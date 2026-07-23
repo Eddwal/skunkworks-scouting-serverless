@@ -164,12 +164,14 @@ export default function SchedulePage() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                    {isScheduleOpen ? <CaretUpIcon className="size-5" /> : <CaretDownIcon className="size-5" />}
-                    <span className="sr-only">Toggle schedule</span>
-                  </Button>
-                </CollapsibleTrigger>
+                <CollapsibleTrigger
+                  render={
+                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                      {isScheduleOpen ? <CaretUpIcon className="size-5" /> : <CaretDownIcon className="size-5" />}
+                      <span className="sr-only">Toggle schedule</span>
+                    </Button>
+                  }
+                />
                 <h2 className="text-xl font-semibold tracking-tight">{activeEvent.name} Schedule</h2>
               </div>
               <div className="flex items-center gap-4">
@@ -178,12 +180,14 @@ export default function SchedulePage() {
                     setDeleteDialogOpen(open)
                     if (!open) setDeleteConfirmText("")
                   }}>
-                    <DialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        <TrashIcon className="mr-2 size-4" />
-                        Delete Event
-                      </Button>
-                    </DialogTrigger>
+                    <DialogTrigger
+                      render={
+                        <Button variant="destructive" size="sm">
+                          <TrashIcon className="mr-2 size-4" />
+                          Delete Event
+                        </Button>
+                      }
+                    />
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Are you absolutely sure?</DialogTitle>
