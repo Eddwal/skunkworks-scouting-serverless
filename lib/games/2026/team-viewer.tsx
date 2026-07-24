@@ -1,19 +1,19 @@
 import { z } from 'zod';
-import { Badge } from '@/components/ui/badge';
-import { CapabilityViewerRow, YesNoBadge } from '@/components/pit-scouting/capabilities';
+import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
 import { robotSchema, capabilitiesSchema } from './schemas';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => (
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <p className="text-sm font-medium text-muted-foreground">Hopper Capacity (Fuel)</p>
-      <p className="font-medium">{data?.hopperCapacity ?? 'N/A'}</p>
+  <div className="pt-4 border-t">
+    <div className="grid grid-cols-2 gap-4">
+      <div>
+        <p className="text-sm font-medium text-muted-foreground">Hopper Capacity</p>
+        <p className="font-medium">{data?.hopperCapacity ?? 'N/A'}</p>
+      </div>
     </div>
   </div>
 );
 
-export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof capabilitiesSchema> }) => {
-  return (
+export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof capabilitiesSchema> }) => (
     <div className="space-y-6">
       <div>
         <div className="flex items-center justify-between pb-1 border-b-2 border-primary/20 mb-2 px-1">
@@ -24,7 +24,7 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
           </div>
         </div>
         <div className="px-1">
-          <CapabilityViewerRow label="Move" can={data?.movement?.move?.can} auto={data?.movement?.move?.auto} />
+          <CapabilityViewerRow label="Move in Auto" can={data?.movement?.move?.can} auto={data?.movement?.move?.auto} />
           <CapabilityViewerRow label="Use Trench" can={data?.movement?.trench?.can} />
           <CapabilityViewerRow label="Use Bump" can={data?.movement?.bump?.can} auto={data?.movement?.bump?.auto} />
         </div>
@@ -39,7 +39,7 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
           </div>
         </div>
         <div className="px-1">
-          <CapabilityViewerRow label="Shoot" can={data?.shooting?.shoot?.can} auto={data?.shooting?.shoot?.auto} />
+          <CapabilityViewerRow label="Can Shoot" can={data?.shooting?.shoot?.can} auto={data?.shooting?.shoot?.auto} />
         </div>
       </div>
 
@@ -59,21 +59,26 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
       </div>
 
       <div>
-        <div className="pb-1 border-b-2 border-primary/20 mb-2 px-1">
+        <div className="flex items-center justify-between pb-1 border-b-2 border-primary/20 mb-2 px-1">
           <h4 className="font-semibold text-primary">Climbing</h4>
-        </div>
-        <div className="px-1 grid grid-cols-2 gap-4 py-2">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Max Climb Level</p>
-            <p className="font-medium mt-1">
-              <Badge variant={data?.climbing?.maxLevel === 'No Climb' ? 'secondary' : 'default'}>
-                {data?.climbing?.maxLevel || 'No Climb'}
-              </Badge>
-            </p>
+          <div className="flex items-center space-x-4 w-32 justify-end text-[10px] font-semibold text-muted-foreground uppercase">
+            <span className="w-12 text-center">Max Level</span>
+            <span className="w-12 text-center">In Auto</span>
           </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Climb in Auto</p>
-            <div className="mt-1"><YesNoBadge val={data?.climbing?.autoClimb || false} /></div>
+        </div>
+        <div className="flex items-center justify-between py-2 border-b last:border-0 border-border/50 px-1">
+          <span className="font-medium text-sm">Climb</span>
+          <div className="flex items-center space-x-4 w-32 justify-end">
+            <div className="flex justify-center w-12 font-semibold text-sm">
+              {data?.climbing?.maxLevel || 'N/A'}
+            </div>
+            <div className="flex justify-center w-12">
+              {data?.climbing?.autoClimb !== undefined ? (
+                <span className={`px-2 py-0.5 rounded text-xs font-semibold ${data.climbing.autoClimb ? 'bg-green-600 text-white' : 'bg-secondary text-secondary-foreground'}`}>
+                  {data.climbing.autoClimb ? 'Yes' : 'No'}
+                </span>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -86,15 +91,5 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
           </div>
         </div>
       )}
-
-      {data?.notes && (
-        <div className="pt-2">
-          <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 mb-2 px-1">Additional Notes</h4>
-          <div className="p-3 bg-muted/30 rounded-md text-sm whitespace-pre-wrap">
-            {data.notes}
-          </div>
-        </div>
-      )}
     </div>
-  );
-};
+);

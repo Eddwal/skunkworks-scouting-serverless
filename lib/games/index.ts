@@ -2,8 +2,10 @@ import { GameConfig } from './types';
 import { Game2026 } from './2026';
 import { Game2025 } from './2025';
 import { Game2027 } from './2027';
+import { Game2028 } from './2028';
 
 const GAME_CONFIGS: Record<string, GameConfig> = {
+  '2028': Game2028,
   '2027': Game2027,
   '2026': Game2026,
   '2025': Game2025,

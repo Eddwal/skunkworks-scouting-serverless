@@ -19,8 +19,14 @@ export interface PitScoutConfig {
 }
 
 export interface MatchScoutConfig {
-  schema?: z.ZodObject<any>;
-  Component?: React.FC<FormComponentProps>;
+  autoSchema: z.ZodObject<any>;
+  teleopSchema: z.ZodType<any, any, any>;
+  endgameSchema: z.ZodType<any, any, any>;
+
+  AutoComponent: React.ComponentType<FormComponentProps>;
+  TeleopComponent: React.ComponentType<FormComponentProps>;
+  EndgameComponent: React.ComponentType<FormComponentProps>;
+  AnalyticsViewerComponent?: React.ComponentType<{ data: any }>;
 }
 
 export interface GameConfig {

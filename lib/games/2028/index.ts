@@ -7,9 +7,9 @@ import { MatchScoutTeleop } from './match-scout/teleop';
 import { MatchScoutEndgame } from './match-scout/endgame';
 import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
 
-export const Game2026: GameConfig = {
-  year: '2026',
-  name: 'Rebuilt',
+export const Game2028: GameConfig = {
+  year: '2028',
+  name: 'Test Game',
   pitScout: {
     robotSchema,
     capabilitiesSchema,

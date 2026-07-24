@@ -3,10 +3,12 @@ import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
 import { robotSchema, capabilitiesSchema } from './schemas';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => (
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <p className="text-sm font-medium text-muted-foreground">Hopper Capacity</p>
-      <p className="font-medium">{data?.hopperCapacity ?? 'N/A'}</p>
+  <div className="pt-4 border-t">
+    <div className="grid grid-cols-2 gap-4">
+      <div>
+        <p className="text-sm font-medium text-muted-foreground">Hopper Capacity</p>
+        <p className="font-medium">{data?.hopperCapacity ?? 'N/A'}</p>
+      </div>
     </div>
   </div>
 );
@@ -49,15 +51,6 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
           <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 mb-2 px-1">Auto Description</h4>
           <div className="p-3 bg-muted/30 rounded-md text-sm whitespace-pre-wrap">
             {data.autoDescription}
-          </div>
-        </div>
-      )}
-
-      {data?.notes && (
-        <div className="pt-2">
-          <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 mb-2 px-1">Additional Notes</h4>
-          <div className="p-3 bg-muted/30 rounded-md text-sm whitespace-pre-wrap">
-            {data.notes}
           </div>
         </div>
       )}

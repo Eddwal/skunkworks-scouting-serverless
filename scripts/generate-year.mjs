@@ -25,11 +25,14 @@ async function generateYear() {
   
   try {
     await fs.mkdir(path.join(baseDir, 'pit-scout'), { recursive: true });
+    await fs.mkdir(path.join(baseDir, 'match-scout'), { recursive: true });
     
     // 1. Create schemas.ts
     const schemasContent = `import { z } from 'zod';
 import { capRowSchema, baseRobotSchema, baseCapabilitiesSchema } from '@/components/pit-scouting/schemas';
+import { baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
 
+// Pit Scout Schemas
 export const robotSchema = baseRobotSchema.extend({
   // Add year specific robot fields here
   // exampleField: z.coerce.number().min(0),
@@ -38,6 +41,19 @@ export const robotSchema = baseRobotSchema.extend({
 export const capabilitiesSchema = baseCapabilitiesSchema.extend({
   // Add year specific capabilities fields here
   // exampleCapability: capRowSchema.default({ can: false, auto: false }),
+});
+
+// Match Scout Schemas
+export const autoSchema = baseAutoSchema.extend({
+  // Add year specific auto fields here
+});
+
+export const teleopSchema = baseTeleopSchema.extend({
+  // Add year specific teleop fields here
+});
+
+export const endgameSchema = baseEndgameSchema.extend({
+  // Add year specific endgame fields here
 });
 `;
     await fs.writeFile(path.join(baseDir, 'schemas.ts'), schemasContent);
@@ -79,16 +95,57 @@ export function PitScoutCapabilities(props: FormComponentProps) {
 `;
     await fs.writeFile(path.join(baseDir, 'pit-scout', 'capabilities.tsx'), capabilitiesContent);
 
+    // Match Scout: Create match-scout/auto.tsx
+    const matchScoutAutoContent = `import { Controller } from 'react-hook-form';
+import { FormComponentProps } from '../../types';
+import { BaseAutoForm } from '@/components/match-scouting/base-auto-form';
+
+export function MatchScoutAuto(props: FormComponentProps) {
+  return (
+    <BaseAutoForm {...props} yearSpecificTitle="${year} Auto">
+      {/* Add year specific auto fields here */}
+    </BaseAutoForm>
+  );
+}
+`;
+    await fs.writeFile(path.join(baseDir, 'match-scout', 'auto.tsx'), matchScoutAutoContent);
+
+    // Match Scout: Create match-scout/teleop.tsx
+    const matchScoutTeleopContent = `import { Controller } from 'react-hook-form';
+import { FormComponentProps } from '../../types';
+import { BaseTeleopForm } from '@/components/match-scouting/base-teleop-form';
+
+export function MatchScoutTeleop(props: FormComponentProps) {
+  return (
+    <BaseTeleopForm {...props} yearSpecificTitle="${year} Teleop">
+      {/* Add year specific teleop fields here */}
+    </BaseTeleopForm>
+  );
+}
+`;
+    await fs.writeFile(path.join(baseDir, 'match-scout', 'teleop.tsx'), matchScoutTeleopContent);
+
+    // Match Scout: Create match-scout/endgame.tsx
+    const matchScoutEndgameContent = `import { Controller } from 'react-hook-form';
+import { FormComponentProps } from '../../types';
+import { BaseEndgameForm } from '@/components/match-scouting/base-endgame-form';
+
+export function MatchScoutEndgame(props: FormComponentProps) {
+  return (
+    <BaseEndgameForm {...props} yearSpecificTitle="${year} Endgame">
+      {/* Add year specific endgame fields here */}
+    </BaseEndgameForm>
+  );
+}
+`;
+    await fs.writeFile(path.join(baseDir, 'match-scout', 'endgame.tsx'), matchScoutEndgameContent);
+
     // 4. Create team-viewer.tsx
     const teamViewerContent = `import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
 import { robotSchema, capabilitiesSchema } from './schemas';
 
-export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => (
-  <div className="grid grid-cols-2 gap-4">
-    {/* Add year specific viewer fields here */}
-  </div>
-);
+export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => null;
 
 export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof capabilitiesSchema> }) => {
   return (
@@ -102,9 +159,12 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
 
     // 5. Create index.ts
     const indexContent = `import { GameConfig } from '../types';
-import { robotSchema, capabilitiesSchema } from './schemas';
+import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema } from './schemas';
 import { PitScoutRobot } from './pit-scout/robot';
 import { PitScoutCapabilities } from './pit-scout/capabilities';
+import { MatchScoutAuto } from './match-scout/auto';
+import { MatchScoutTeleop } from './match-scout/teleop';
+import { MatchScoutEndgame } from './match-scout/endgame';
 import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
 
 export const Game${year}: GameConfig = {
@@ -117,6 +177,14 @@ export const Game${year}: GameConfig = {
     CapabilitiesComponent: PitScoutCapabilities,
     RobotViewerComponent,
     CapabilitiesViewerComponent,
+  },
+  matchScout: {
+    autoSchema,
+    teleopSchema,
+    endgameSchema,
+    AutoComponent: MatchScoutAuto,
+    TeleopComponent: MatchScoutTeleop,
+    EndgameComponent: MatchScoutEndgame,
   },
 };
 `;

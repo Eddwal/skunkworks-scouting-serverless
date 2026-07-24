@@ -4,40 +4,55 @@ import { z } from 'zod';
 
 import { dimensionsSchema, driveTrainSchema } from '@/components/pit-scouting/schemas';
 
-export const getPitScoutSchema = (gameConfig: GameConfig) => {
+export const getTeamDataSchema = (gameConfig: GameConfig) => {
   return z.object({
     eventId: z.string().optional(),
     teamId: z.string().optional(),
     photoUrl: z.string().url().optional().or(z.literal('')),
     year: z.string().optional(),
     updatedAt: z.string().optional(),
-    robot: gameConfig.pitScout.robotSchema,
-    capabilities: gameConfig.pitScout.capabilitiesSchema,
+    robot: gameConfig.pitScout.robotSchema.optional(),
+    capabilities: gameConfig.pitScout.capabilitiesSchema.optional(),
+    analytics: z.object({
+      matchCount: z.number(),
+      uptime: z.object({
+        autoDeadCount: z.number(),
+        teleopDeadCount: z.number(),
+      }),
+      fouls: z.object({
+        major: z.number(),
+        minor: z.number(),
+      }),
+      notes: z.array(z.object({
+        title: z.string(),
+        content: z.string(),
+      }))
+    }).optional()
   });
 };
 
 const baseRobotSchema = dimensionsSchema.merge(driveTrainSchema);
 
-export type PitScoutData = Omit<z.infer<ReturnType<typeof getPitScoutSchema>>, 'robot' | 'capabilities'> & {
+export type TeamData = Omit<z.infer<ReturnType<typeof getTeamDataSchema>>, 'robot' | 'capabilities'> & {
   robot?: z.infer<typeof baseRobotSchema> & { [key: string]: any };
   capabilities?: { [key: string]: any };
 };
 
-export const getPitScoutConverter = (gameConfig: GameConfig): FirestoreDataConverter<PitScoutData> => {
-  const schema = getPitScoutSchema(gameConfig);
+export const getTeamDataConverter = (gameConfig: GameConfig): FirestoreDataConverter<TeamData> => {
+  const schema = getTeamDataSchema(gameConfig);
   return {
-    toFirestore: (data: PitScoutData): DocumentData => {
+    toFirestore: (data: TeamData): DocumentData => {
       return data as DocumentData;
     },
-    fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): PitScoutData => {
+    fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): TeamData => {
       const data = snapshot.data(options);
       const parsed = schema.safeParse(data);
       if (parsed.success) {
-        return parsed.data as PitScoutData;
+        return parsed.data as TeamData;
       } else {
-        console.warn(`Data validation failed for pitScout doc ${snapshot.id}:`, parsed.error);
+        console.warn(`Data validation failed for team doc ${snapshot.id}:`, parsed.error);
         // Fallback to returning raw data casted, so the app doesn't break completely
-        return data as PitScoutData;
+        return data as TeamData;
       }
     }
   };

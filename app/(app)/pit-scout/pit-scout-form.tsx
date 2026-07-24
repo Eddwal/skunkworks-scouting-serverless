@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { db, storage } from '@/lib/firebase/firebase-client';
 import { doc, setDoc } from 'firebase/firestore';
@@ -14,6 +15,7 @@ import { getGameConfig, DEFAULT_YEAR } from '@/lib/games';
 import { SetupStep } from '@/components/pit-scouting/setup-step';
 import { PictureStep } from '@/components/pit-scouting/picture-step';
 import { ReviewStep } from '@/components/pit-scouting/review-step';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
 
 const baseSchema = z.object({
   eventId: z.string().min(1, "Event is required"),
@@ -38,6 +40,7 @@ function PitScoutFormContent() {
 
   const { control, handleSubmit, watch, trigger, formState: { errors }, reset, setValue, register } = useForm({
     resolver: zodResolver(fullSchema),
+    shouldUnregister: false,
     defaultValues: {
       eventId: activeEvent?.id || '',
       teamId: '',
@@ -48,6 +51,7 @@ function PitScoutFormContent() {
   });
 
   const watchEventId = watch('eventId');
+  const watchTeamId = watch('teamId');
   const selectedEvent = events.find(e => e.id === watchEventId);
   const teams = selectedEvent?.teams || [];
 
@@ -92,14 +96,14 @@ function PitScoutFormContent() {
         uploadedPhotoUrl = await getDownloadURL(snapshot.ref);
       }
 
-      const docRef = doc(db, 'events', data.eventId, 'pitScout', dbTeamId);
+      const docRef = doc(db, 'events', data.eventId, 'teams', dbTeamId);
       
       await setDoc(docRef, {
         ...data,
         photoUrl: uploadedPhotoUrl,
         year,
         updatedAt: new Date().toISOString()
-      });
+      }, { merge: true });
       
       toast.success("Pit scouting data saved successfully!");
       reset();
@@ -118,8 +122,20 @@ function PitScoutFormContent() {
   const PitScoutCapabilities = gameConfig.pitScout.CapabilitiesComponent;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex justify-between mb-8">
+    <Card>
+      <CardHeader>
+        <CardTitle>Pit Scouting</CardTitle>
+        {step > 1 && watchTeamId && (
+          <CardAction>
+            <Badge variant="default" className="text-sm px-4 py-1">
+              Team {watchTeamId.replace('frc', '')}
+            </Badge>
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="flex justify-between mb-8">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className={`flex-1 text-center border-b-2 pb-2 ${step >= i ? 'border-primary text-primary font-bold' : 'border-muted text-muted-foreground'}`}>
             <span className="hidden sm:inline">
@@ -173,18 +189,20 @@ function PitScoutFormContent() {
 
       <div className="flex justify-between pt-4">
         {step > 1 ? (
-          <Button type="button" variant="outline" onClick={handleBack}>Back</Button>
+          <Button type="button" variant="outline" onClick={(e) => { e.preventDefault(); handleBack(); }}>Back</Button>
         ) : <div></div>}
         
         {step < 5 ? (
-          <Button type="button" onClick={handleNext}>Next</Button>
+          <Button type="button" onClick={(e) => { e.preventDefault(); handleNext(); }}>Next</Button>
         ) : (
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Submit to Database"}
           </Button>
         )}
       </div>
-    </form>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 

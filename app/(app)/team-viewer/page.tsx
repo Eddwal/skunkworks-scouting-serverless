@@ -1,22 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useEvent } from '@/hooks/use-event';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { db } from '@/lib/firebase/firebase-client';
 import { collection, getDocs } from 'firebase/firestore';
 import { getGameConfig } from '@/lib/games';
-import { getPitScoutConverter, PitScoutData } from '@/lib/firebase/converters';
+import { getTeamDataConverter, TeamData } from '@/lib/firebase/converters';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CircleNotch, ArrowSquareOut } from '@phosphor-icons/react';
 
-export default function TeamViewerPage() {
+function TeamViewerContent() {
   const { activeEvent } = useEvent();
-  const [teams, setTeams] = useState<(PitScoutData & { id: string })[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string>('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
+  const initialTeam = searchParams.get('team') || '';
+  const [teams, setTeams] = useState<(TeamData & { id: string })[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<string>(initialTeam);
   const [loading, setLoading] = useState(false);
+
+  const handleTeamChange = (val: string) => {
+    setSelectedTeam(val);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('team', val);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   useEffect(() => {
     if (!activeEvent) return;
@@ -25,8 +38,8 @@ export default function TeamViewerPage() {
     const fetchTeams = async () => {
       setLoading(true);
       try {
-        const pitScoutRef = collection(db, 'events', activeEvent.id, 'pitScout').withConverter(getPitScoutConverter(gameConfig));
-        const snapshot = await getDocs(pitScoutRef);
+        const teamsRef = collection(db, 'events', activeEvent.id, 'teams').withConverter(getTeamDataConverter(gameConfig));
+        const snapshot = await getDocs(teamsRef);
         const fetchedTeams = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -36,8 +49,11 @@ export default function TeamViewerPage() {
         fetchedTeams.sort((a, b) => parseInt(a.id) - parseInt(b.id));
         
         setTeams(fetchedTeams);
-        if (fetchedTeams.length > 0 && !selectedTeam) {
-          setSelectedTeam(fetchedTeams[0].id);
+        if (fetchedTeams.length > 0) {
+          // If no team is selected or the selected team is not in the list, default to the first one
+          if (!selectedTeam || !fetchedTeams.some(t => t.id === selectedTeam)) {
+            handleTeamChange(fetchedTeams[0].id);
+          }
         }
       } catch (e) {
         console.error("Error fetching teams", e);
@@ -54,6 +70,35 @@ export default function TeamViewerPage() {
   const gameConfig = getGameConfig(activeEvent.id.substring(0, 4));
   const teamData = teams.find(t => t.id === selectedTeam);
 
+  // Compute rankings
+  let autoUptimeRank = 0;
+  let teleopUptimeRank = 0;
+  let totalAutoRanks = 0;
+  let totalTeleopRanks = 0;
+
+  if (teamData?.analytics) {
+    const validTeams = teams.filter(t => t.analytics && t.analytics.matchCount > 0);
+
+    if (teamData.analytics.matchCount > 0) {
+      const getAutoScore = (t: TeamData) => t.analytics!.matchCount > 0 ? (1 - (t.analytics!.uptime.autoDeadCount / t.analytics!.matchCount)) : -1;
+      const getTeleopScore = (t: TeamData) => t.analytics!.matchCount > 0 ? (1 - (t.analytics!.uptime.teleopDeadCount / t.analytics!.matchCount)) : -1;
+
+      // Extract all unique scores to determine dense ranks
+      const uniqueAutoScores = Array.from(new Set(validTeams.map(getAutoScore))).sort((a, b) => b - a);
+      const uniqueTeleopScores = Array.from(new Set(validTeams.map(getTeleopScore))).sort((a, b) => b - a);
+
+      totalAutoRanks = uniqueAutoScores.length;
+      totalTeleopRanks = uniqueTeleopScores.length;
+
+      const currentAutoScore = getAutoScore(teamData);
+      const currentTeleopScore = getTeleopScore(teamData);
+
+      // Rank is the index in the sorted unique scores array + 1
+      autoUptimeRank = uniqueAutoScores.indexOf(currentAutoScore) + 1;
+      teleopUptimeRank = uniqueTeleopScores.indexOf(currentTeleopScore) + 1;
+    }
+  }
+
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-6">
       {/* Top Bar for Team Selection */}
@@ -64,7 +109,7 @@ export default function TeamViewerPage() {
             <div className="flex items-center text-muted-foreground"><CircleNotch className="mr-2 h-4 w-4 animate-spin" /></div>
           ) : (
             <div className="w-64">
-              <Select value={selectedTeam} onValueChange={(val) => { if (val) setSelectedTeam(val); }}>
+              <Select value={selectedTeam} onValueChange={(val) => { if (val) handleTeamChange(val); }}>
                 <SelectTrigger>
                   <span data-slot="select-value" className="flex flex-1 text-left">
                     {selectedTeam ? selectedTeam.replace('frc', '') : 'Select a Team'}
@@ -124,9 +169,7 @@ export default function TeamViewerPage() {
                     </div>
                   </div>
                   {gameConfig.pitScout.RobotViewerComponent && (
-                    <div className="pt-4 border-t">
-                      <gameConfig.pitScout.RobotViewerComponent data={teamData.robot} />
-                    </div>
+                    <gameConfig.pitScout.RobotViewerComponent data={teamData.robot} />
                   )}
                 </CardContent>
               </Card>
@@ -136,13 +179,13 @@ export default function TeamViewerPage() {
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg">Robot Photo</CardTitle>
                 </CardHeader>
-                <CardContent className="flex-1 p-0 pb-6 px-6">
+                <CardContent className="flex-1 p-3 pt-0">
                   {teamData.photoUrl ? (
                     <Dialog>
                       <DialogTrigger
                         nativeButton={false}
                         render={
-                          <div className="relative rounded-md overflow-hidden bg-muted flex items-center justify-center border h-full min-h-[200px] cursor-pointer hover:opacity-90 transition-opacity">
+                          <div className="relative rounded-md overflow-hidden bg-muted flex items-center justify-center border h-full min-h-[250px] cursor-pointer hover:opacity-90 transition-opacity">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={teamData.photoUrl} alt={`Team ${teamData.id} Robot`} className="object-cover w-full h-full absolute inset-0" />
                           </div>
@@ -154,7 +197,7 @@ export default function TeamViewerPage() {
                       </DialogContent>
                     </Dialog>
                   ) : (
-                    <div className="rounded-md bg-muted flex items-center justify-center text-muted-foreground border h-full min-h-[200px]">
+                    <div className="rounded-md border bg-muted flex items-center justify-center text-muted-foreground h-full min-h-[250px]">
                       No Photo Available
                     </div>
                   )}
@@ -162,27 +205,110 @@ export default function TeamViewerPage() {
               </Card>
             </div>
 
-            {/* Year Specific Capabilities */}
-            <Card className="shadow-sm border-primary/20">
-              <CardHeader className="bg-primary/5 border-b pb-4">
-                <CardTitle className="text-lg">Capabilities</CardTitle>
-                <CardDescription>Pit scouted data specific to {gameConfig.name}</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                {gameConfig.pitScout.CapabilitiesViewerComponent ? (
-                  <gameConfig.pitScout.CapabilitiesViewerComponent data={teamData.capabilities} />
-                ) : (
-                  <p className="text-muted-foreground">No capabilities viewer defined for this year.</p>
+            {/* Condensing Capabilities and Analytics/Notes into a two-column layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Year Specific Capabilities */}
+              <Card className="shadow-sm border-primary/20 h-fit overflow-hidden">
+                <CardHeader className="bg-primary/5 border-b pb-4">
+                  <CardTitle className="text-lg">Capabilities</CardTitle>
+                  <CardDescription>Pit scouted data specific to {gameConfig.name}</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {gameConfig.pitScout.CapabilitiesViewerComponent ? (
+                    <gameConfig.pitScout.CapabilitiesViewerComponent data={teamData.capabilities} />
+                  ) : (
+                    <p className="text-muted-foreground">No capabilities viewer defined for this year.</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Analytics and Notes Column */}
+              <div className="flex flex-col space-y-6">
+                {teamData.analytics && (
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg">Match Scouting Analytics</CardTitle>
+                      <CardDescription>Aggregate data from {teamData.analytics.matchCount} matches</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div className="bg-muted/50 p-3 rounded-md flex flex-col justify-center">
+                          <div className="text-2xl font-bold">{teamData.analytics.matchCount > 0 ? Math.round((1 - (teamData.analytics.uptime.autoDeadCount / teamData.analytics.matchCount)) * 100) : 0}%</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Auto Uptime</div>
+                          {teamData.analytics.matchCount > 0 && (
+                            <div className="text-[10px] text-muted-foreground/80 font-medium">Rank {autoUptimeRank} of {totalAutoRanks}</div>
+                          )}
+                        </div>
+                        <div className="bg-muted/50 p-3 rounded-md flex flex-col justify-center">
+                          <div className="text-2xl font-bold">{teamData.analytics.matchCount > 0 ? Math.round((1 - (teamData.analytics.uptime.teleopDeadCount / teamData.analytics.matchCount)) * 100) : 0}%</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Teleop Uptime</div>
+                          {teamData.analytics.matchCount > 0 && (
+                            <div className="text-[10px] text-muted-foreground/80 font-medium">Rank {teleopUptimeRank} of {totalTeleopRanks}</div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-center pt-2">
+                        <div>
+                          <div className="text-xl font-semibold">{teamData.analytics.fouls.major}</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider">Major Fouls</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-semibold">{teamData.analytics.fouls.minor}</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider">Minor Fouls</div>
+                        </div>
+                      </div>
+                      
+                      {gameConfig.matchScout?.AnalyticsViewerComponent && (
+                        <div className="pt-4 border-t">
+                          <gameConfig.matchScout.AnalyticsViewerComponent data={teamData.analytics} />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 )}
-              </CardContent>
-            </Card>
+
+                <Card className="shadow-sm">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg">Notes</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                      {teamData.capabilities?.notes && (
+                        <div className="bg-muted/30 p-3 rounded-md border">
+                          <div className="font-semibold text-sm mb-1 text-primary">Pit Scout</div>
+                          <div className="text-sm whitespace-pre-wrap">{teamData.capabilities.notes}</div>
+                        </div>
+                      )}
+                      {teamData.analytics?.notes?.map((note, idx) => (
+                        <div key={idx} className="bg-muted/30 p-3 rounded-md border">
+                          <div className="font-semibold text-sm mb-1 text-primary">{note.title.toUpperCase()}</div>
+                          <div className="text-sm whitespace-pre-wrap">{note.content}</div>
+                        </div>
+                      ))}
+                      {!teamData.capabilities?.notes && (!teamData.analytics?.notes || teamData.analytics.notes.length === 0) && (
+                        <div className="text-muted-foreground text-sm text-center py-8">No notes available.</div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed text-muted-foreground bg-muted/30">
-            {teams.length === 0 ? 'No pit scout data found for this event.' : 'Select a team to view their data.'}
+            {teams.length === 0 ? 'No team data found for this event.' : 'Select a team to view their data.'}
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+export default function TeamViewerPage() {
+  return (
+    <Suspense fallback={<div className="p-4">Loading...</div>}>
+      <TeamViewerContent />
+    </Suspense>
   );
 }
