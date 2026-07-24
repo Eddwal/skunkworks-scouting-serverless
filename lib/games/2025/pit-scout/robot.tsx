@@ -9,15 +9,7 @@ export function PitScoutRobot(props: FormComponentProps) {
   
   return (
     <BasePitScoutRobot {...props} yearSpecificTitle="2025 Specifics">
-      <div className="space-y-2">
-        <Label>Hopper Capacity</Label>
-        <Controller
-          name="robot.hopperCapacity"
-          control={control}
-          render={({ field }) => <Input type="number" inputMode="decimal" {...field} value={field.value ?? ''} />}
-        />
-        {(errors?.robot as any)?.hopperCapacity && <p className="text-sm text-destructive">{(errors.robot as any).hopperCapacity.message as string}</p>}
-      </div>
+      {/* Add year specific form fields here */}
     </BasePitScoutRobot>
   );
 }

@@ -1,15 +1,27 @@
 import { z } from 'zod';
 import { capRowSchema, baseRobotSchema, baseCapabilitiesSchema } from '@/components/pit-scouting/schemas';
+import { baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
 
+// Pit Scout Schemas
 export const robotSchema = baseRobotSchema.extend({
-  hopperCapacity: z.coerce.number({ message: "Hopper Capacity must be a valid number" }).min(0, "Hopper capacity cannot be negative"),
+  // Add year specific robot fields here
+  // exampleField: z.coerce.number().min(0),
 });
 
 export const capabilitiesSchema = baseCapabilitiesSchema.extend({
-  coralL1: capRowSchema.default({ can: false, auto: false }),
-  coralL2: capRowSchema.default({ can: false, auto: false }),
-  coralL3: capRowSchema.default({ can: false, auto: false }),
-  coralL4: capRowSchema.default({ can: false, auto: false }),
-  algaeProcessor: capRowSchema.default({ can: false, auto: false }),
-  algaeNet: capRowSchema.default({ can: false, auto: false })
+  // Add year specific capabilities fields here
+  // exampleCapability: capRowSchema.default({ can: false, auto: false }),
+});
+
+// Match Scout Schemas
+export const autoSchema = baseAutoSchema.extend({
+  // Add year specific auto fields here
+});
+
+export const teleopSchema = baseTeleopSchema.extend({
+  // Add year specific teleop fields here
+});
+
+export const endgameSchema = baseEndgameSchema.extend({
+  // Add year specific endgame fields here
 });
