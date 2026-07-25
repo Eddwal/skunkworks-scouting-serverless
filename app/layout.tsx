@@ -17,6 +17,26 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+export const metadata = {
+  title: "Skunkworks Scouting",
+  description: "Skunkworks FRC Scouting Application",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Skunkworks",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({
   children,

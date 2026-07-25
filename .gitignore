@@ -37,3 +37,6 @@ next-env.d.ts
 
 # firebase emulators
 /emulator-data
+
+*storybook.log
+storybook-static

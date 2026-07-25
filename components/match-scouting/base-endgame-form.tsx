@@ -28,7 +28,7 @@ export function BaseEndgameForm({ control, children, yearSpecificTitle }: BaseEn
               name="endgame.yellowCard"
               control={control}
               render={({ field }) => (
-                <Checkbox id="yellowCard" checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox id="yellowCard" checked={!!field.value} onCheckedChange={field.onChange} />
               )}
             />
             <Label htmlFor="yellowCard">Yellow Card</Label>
@@ -38,7 +38,7 @@ export function BaseEndgameForm({ control, children, yearSpecificTitle }: BaseEn
               name="endgame.redCard"
               control={control}
               render={({ field }) => (
-                <Checkbox id="redCard" checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox id="redCard" checked={!!field.value} onCheckedChange={field.onChange} />
               )}
             />
             <Label htmlFor="redCard">Red Card</Label>

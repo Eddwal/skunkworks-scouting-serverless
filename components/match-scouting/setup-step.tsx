@@ -81,7 +81,7 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams, s
           name="matchSetup.isSubstitute"
           control={control}
           render={({ field }) => (
-            <Checkbox id="isSubstitute" checked={field.value} onCheckedChange={field.onChange} />
+            <Checkbox id="isSubstitute" checked={!!field.value} onCheckedChange={field.onChange} />
           )}
         />
         <Label htmlFor="isSubstitute">Substitute?</Label>
@@ -115,7 +115,7 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams, s
           name="matchSetup.noShow"
           control={control}
           render={({ field }) => (
-            <Checkbox id="noShow" checked={field.value} onCheckedChange={field.onChange} />
+            <Checkbox id="noShow" checked={!!field.value} onCheckedChange={field.onChange} />
           )}
         />
         <Label htmlFor="noShow">No Show?</Label>

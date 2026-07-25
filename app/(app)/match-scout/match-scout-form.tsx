@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { QRCodeSVG } from 'qrcode.react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase/firebase-client';
 import { doc, setDoc, collection, onSnapshot, query, orderBy, runTransaction } from 'firebase/firestore';
@@ -27,6 +29,8 @@ function MatchScoutFormContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { events, activeEvent } = useEvent();
   const [matches, setMatches] = useState<any[]>([]);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [currentQRData, setCurrentQRData] = useState('');
   
   const year = activeEvent?.id ? activeEvent.id.substring(0, 4) : DEFAULT_YEAR;
   const gameConfig = getGameConfig(year);
@@ -118,58 +122,15 @@ function MatchScoutFormContent() {
         : data.matchSetup.scheduledTeamId;
         
       const dbTeamId = activeTeamId.startsWith('frc') ? activeTeamId : `frc${activeTeamId}`;
-      const docId = `${data.matchSetup.matchKey}_${dbTeamId}`;
       
-      const matchDocRef = doc(db, 'events', data.eventId, 'matchScout', docId);
-      const teamDocRef = doc(db, 'events', data.eventId, 'teams', dbTeamId);
+      const uploadData = {
+        ...data,
+        teamId: dbTeamId,
+        year
+      };
       
-      await runTransaction(db, async (transaction) => {
-        // Reads must happen before writes
-        const teamDoc = await transaction.get(teamDocRef);
-        const currentData = teamDoc.data() || {};
-        
-        // Write the individual match log
-        transaction.set(matchDocRef, {
-          ...data,
-          teamId: dbTeamId,
-          year,
-          updatedAt: new Date().toISOString()
-        });
-
-        // Update team analytics
-        const analytics = currentData.analytics || {
-          matchCount: 0,
-          uptime: { autoDeadCount: 0, teleopDeadCount: 0 },
-          fouls: { major: 0, minor: 0 },
-          notes: []
-        };
-
-        analytics.matchCount += 1;
-
-        const autoDead = data.auto?.deadInTheWater === true;
-        const teleopDead = data.teleop?.deadInTheWater === true;
-        if (autoDead) analytics.uptime.autoDeadCount += 1;
-        if (teleopDead) analytics.uptime.teleopDeadCount += 1;
-
-        const autoMajor = Number(data.auto?.majorFouls) || 0;
-        const autoMinor = Number(data.auto?.minorFouls) || 0;
-        const teleopMajor = Number(data.teleop?.majorFouls) || 0;
-        const teleopMinor = Number(data.teleop?.minorFouls) || 0;
-
-        analytics.fouls.major += autoMajor + teleopMajor;
-        analytics.fouls.minor += autoMinor + teleopMinor;
-
-        const endgameNotes = data.endgame?.notes;
-        if (endgameNotes && endgameNotes.trim().length > 0) {
-          analytics.notes.push({
-            title: data.matchSetup.matchKey,
-            content: endgameNotes.trim()
-          });
-        }
-
-        // Update the team document with the new analytics
-        transaction.set(teamDocRef, { analytics }, { merge: true });
-      });
+      const { uploadMatchScoutData } = await import('./upload-action');
+      await uploadMatchScoutData(uploadData);
       
       toast.success("Match scouting data saved successfully!");
       reset();
@@ -179,6 +140,54 @@ function MatchScoutFormContent() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGenerateQR = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const data = watch();
+    const activeTeamId = data.matchSetup.isSubstitute && data.matchSetup.substituteTeamId 
+      ? data.matchSetup.substituteTeamId 
+      : data.matchSetup.scheduledTeamId;
+      
+    if (!activeTeamId) {
+      toast.error("Please select a team first");
+      return;
+    }
+      
+    const dbTeamId = activeTeamId.startsWith('frc') ? activeTeamId : `frc${activeTeamId}`;
+    
+    const exportData = {
+      ...data,
+      teamId: dbTeamId,
+      year,
+      timestamp: new Date().toISOString()
+    };
+    
+    const qrString = JSON.stringify(exportData);
+    setCurrentQRData(qrString);
+    setQrDialogOpen(true);
+    
+    const stored = localStorage.getItem('matchScoutQRCodes');
+    const codes = stored ? JSON.parse(stored) : [];
+    
+    const existingIndex = codes.findIndex((c: any) => c.matchKey === data.matchSetup.matchKey && c.teamId === dbTeamId);
+    
+    const newCode = {
+      id: `${data.matchSetup.matchKey}_${dbTeamId}_${Date.now()}`,
+      matchKey: data.matchSetup.matchKey,
+      teamId: dbTeamId,
+      timestamp: new Date().toISOString(),
+      data: qrString
+    };
+    
+    if (existingIndex >= 0) {
+      codes[existingIndex] = newCode;
+    } else {
+      codes.push(newCode);
+    }
+    
+    localStorage.setItem('matchScoutQRCodes', JSON.stringify(codes));
+    window.dispatchEvent(new Event('qrCodesUpdated'));
   };
 
   const AutoComponent = gameConfig.matchScout?.AutoComponent;
@@ -265,12 +274,42 @@ function MatchScoutFormContent() {
         {step < 5 ? (
           <Button type="button" onClick={(e) => { e.preventDefault(); handleNext(); }}>Next</Button>
         ) : (
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit to Database"}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={handleGenerateQR}>
+              Save to QR Code
+            </Button>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Submit to Database"}
+            </Button>
+          </div>
         )}
       </div>
         </form>
+        <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Generated QR Code</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center p-6 space-y-4">
+              <div className="bg-white p-4 rounded-lg shadow-sm border">
+                {currentQRData && <QRCodeSVG value={currentQRData} size={250} />}
+              </div>
+              <p className="text-sm text-center text-muted-foreground">
+                This QR code has been saved to your device. You can access it later from the main scouting page.
+              </p>
+              <Button 
+                className="w-full mt-2" 
+                onClick={() => {
+                  setQrDialogOpen(false);
+                  reset();
+                  setStep(1);
+                }}
+              >
+                Done (Start New Match)
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

@@ -60,7 +60,7 @@ export function BaseTeleopForm({ control, children, yearSpecificTitle }: BaseTel
           name="teleop.deadInTheWater"
           control={control}
           render={({ field }) => (
-            <Checkbox id="teleop-dead" checked={field.value} onCheckedChange={field.onChange} />
+            <Checkbox id="teleop-dead" checked={!!field.value} onCheckedChange={field.onChange} />
           )}
         />
         <Label htmlFor="teleop-dead">Dead in the Water (Teleop)</Label>

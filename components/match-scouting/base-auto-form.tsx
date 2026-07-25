@@ -19,7 +19,7 @@ export function BaseAutoForm({ control, children, yearSpecificTitle }: BaseAutoF
           name="auto.moved"
           control={control}
           render={({ field }) => (
-            <Checkbox id="auto-moved" checked={field.value} onCheckedChange={field.onChange} />
+            <Checkbox id="auto-moved" checked={!!field.value} onCheckedChange={field.onChange} />
           )}
         />
         <Label htmlFor="auto-moved">Moved?</Label>
@@ -71,7 +71,7 @@ export function BaseAutoForm({ control, children, yearSpecificTitle }: BaseAutoF
           name="auto.deadInTheWater"
           control={control}
           render={({ field }) => (
-            <Checkbox id="auto-dead" checked={field.value} onCheckedChange={field.onChange} />
+            <Checkbox id="auto-dead" checked={!!field.value} onCheckedChange={field.onChange} />
           )}
         />
         <Label htmlFor="auto-dead">Dead in the Water (Auto)</Label>

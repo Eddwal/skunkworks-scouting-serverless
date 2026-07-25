@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -54,8 +53,8 @@ export function UsersClient({ initialUsers }: { initialUsers: UserData[] }) {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUserEmail || !newUserName) {
-      toast.error("Email and Name are required");
+    if (!newUserEmail || !newUserName || !newUserPassword) {
+      toast.error("Email, Name, and Password are required");
       return;
     }
     
@@ -96,9 +95,6 @@ export function UsersClient({ initialUsers }: { initialUsers: UserData[] }) {
             <form onSubmit={handleCreateUser}>
               <DialogHeader>
                 <DialogTitle>Create User</DialogTitle>
-                <DialogDescription>
-                  Create a new user account. An email will not be sent automatically.
-                </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
@@ -127,7 +123,7 @@ export function UsersClient({ initialUsers }: { initialUsers: UserData[] }) {
                     type="password" 
                     value={newUserPassword} 
                     onChange={(e) => setNewUserPassword(e.target.value)} 
-                    placeholder="Leave blank for random password" 
+                    placeholder="Password for user" 
                   />
                 </div>
               </div>

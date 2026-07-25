@@ -36,11 +36,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const idTokenResult = await currentUser.getIdTokenResult();
           setClaims(idTokenResult.claims);
+          // Set cookie as fallback for Service Worker race conditions
+          document.cookie = `firebaseAuthToken=${idTokenResult.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         } catch (error) {
           console.error("Error fetching claims", error);
           setClaims({});
         }
       } else {
+        document.cookie = `firebaseAuthToken=; path=/; max-age=0`;
         setClaims({});
       }
       setLoading(false);

@@ -22,6 +22,8 @@ export const getTeamDataSchema = (gameConfig: GameConfig) => {
       fouls: z.object({
         major: z.number(),
         minor: z.number(),
+        yellowCards: z.number().optional(),
+        redCards: z.number().optional(),
       }),
       notes: z.array(z.object({
         title: z.string(),

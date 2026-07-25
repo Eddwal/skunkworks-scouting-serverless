@@ -56,6 +56,7 @@ function DashboardPageContent() {
              </div>
           </div>
           
+          {/* Year specific dashboard content */}
           {DashboardComponent && (
             <div className="space-y-4">
                <DashboardComponent />
