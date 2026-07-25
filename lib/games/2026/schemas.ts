@@ -28,8 +28,12 @@ export const capabilitiesSchema = baseCapabilitiesSchema.extend({
 });
 
 export const analyticsSchema = z.object({
-  avgFuelScored: z.number().optional(),
-  totalFuelScored: z.number().optional(),
+  totalAutoFuelScored: z.number().optional(),
+  totalTeleopFuelScored: z.number().optional(),
+  totalOverallFuelScored: z.number().optional(),
+  avgAutoFuelScored: z.number().optional(),
+  avgTeleopFuelScored: z.number().optional(),
+  avgOverallFuelScored: z.number().optional(),
 });
 
 // Match Scout Schemas
@@ -44,3 +48,15 @@ export const teleopSchema = baseTeleopSchema.extend({
 export const endgameSchema = baseEndgameSchema.extend({
   // Add year specific endgame fields here
 });
+
+import { baseMatchSetupSchema } from '@/components/match-scouting/schemas';
+import { baseAnalyticsSchema } from '@/lib/firebase/converters';
+
+export type MatchData2026 = {
+  matchSetup: z.infer<typeof baseMatchSetupSchema>;
+  auto: z.infer<typeof autoSchema>;
+  teleop: z.infer<typeof teleopSchema>;
+  endgame: z.infer<typeof endgameSchema>;
+};
+
+export type AnalyticsData2026 = z.infer<typeof baseAnalyticsSchema> & z.infer<typeof analyticsSchema>;

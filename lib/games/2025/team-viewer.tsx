@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
+import { StatWithRank } from '@/components/ui/stat-with-rank';
 import { robotSchema, capabilitiesSchema, analyticsSchema } from './schemas';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => null;
@@ -12,25 +13,47 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
   );
 };
 
-export const AnalyticsViewerComponent = ({ data }: { data: z.infer<typeof analyticsSchema> }) => {
+export const AnalyticsViewerComponent = ({ data, allTeamsData }: { data: z.infer<typeof analyticsSchema>, allTeamsData?: any[] }) => {
   if (!data) return null;
+
+  const getValues = (key: string) => allTeamsData?.map(t => t.analytics?.[key]).filter(v => typeof v === 'number') as number[];
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-lg">
-        <span className="text-sm text-muted-foreground">Avg Coral L4</span>
-        <span className="text-2xl font-bold">{data.avgCoralL4?.toFixed(1) || '0.0'}</span>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Coral L4</h4>
+        <div className="grid grid-cols-3 gap-4">
+          <StatWithRank label="Auto" value={data.avgAutoCoralL4} allValues={getValues('avgAutoCoralL4')} />
+          <StatWithRank label="Teleop" value={data.avgTeleopCoralL4} allValues={getValues('avgTeleopCoralL4')} />
+          <StatWithRank label="Overall" value={data.avgOverallCoralL4} allValues={getValues('avgOverallCoralL4')} />
+        </div>
       </div>
-      <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-lg">
-        <span className="text-sm text-muted-foreground">Avg Coral L3</span>
-        <span className="text-2xl font-bold">{data.avgCoralL3?.toFixed(1) || '0.0'}</span>
+      
+      <div className="space-y-2">
+        <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Coral L3</h4>
+        <div className="grid grid-cols-3 gap-4">
+          <StatWithRank label="Auto" value={data.avgAutoCoralL3} allValues={getValues('avgAutoCoralL3')} />
+          <StatWithRank label="Teleop" value={data.avgTeleopCoralL3} allValues={getValues('avgTeleopCoralL3')} />
+          <StatWithRank label="Overall" value={data.avgOverallCoralL3} allValues={getValues('avgOverallCoralL3')} />
+        </div>
       </div>
-      <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-lg">
-        <span className="text-sm text-muted-foreground">Avg Coral L2</span>
-        <span className="text-2xl font-bold">{data.avgCoralL2?.toFixed(1) || '0.0'}</span>
+
+      <div className="space-y-2">
+        <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Coral L2</h4>
+        <div className="grid grid-cols-3 gap-4">
+          <StatWithRank label="Auto" value={data.avgAutoCoralL2} allValues={getValues('avgAutoCoralL2')} />
+          <StatWithRank label="Teleop" value={data.avgTeleopCoralL2} allValues={getValues('avgTeleopCoralL2')} />
+          <StatWithRank label="Overall" value={data.avgOverallCoralL2} allValues={getValues('avgOverallCoralL2')} />
+        </div>
       </div>
-      <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-lg">
-        <span className="text-sm text-muted-foreground">Avg Coral L1</span>
-        <span className="text-2xl font-bold">{data.avgCoralL1?.toFixed(1) || '0.0'}</span>
+
+      <div className="space-y-2">
+        <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Coral L1</h4>
+        <div className="grid grid-cols-3 gap-4">
+          <StatWithRank label="Auto" value={data.avgAutoCoralL1} allValues={getValues('avgAutoCoralL1')} />
+          <StatWithRank label="Teleop" value={data.avgTeleopCoralL1} allValues={getValues('avgTeleopCoralL1')} />
+          <StatWithRank label="Overall" value={data.avgOverallCoralL1} allValues={getValues('avgOverallCoralL1')} />
+        </div>
       </div>
     </div>
   );

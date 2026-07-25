@@ -26,7 +26,7 @@ export interface MatchScoutConfig {
   AutoComponent: React.ComponentType<FormComponentProps>;
   TeleopComponent: React.ComponentType<FormComponentProps>;
   EndgameComponent: React.ComponentType<FormComponentProps>;
-  AnalyticsViewerComponent?: React.ComponentType<{ data: any }>;
+  AnalyticsViewerComponent?: React.ComponentType<{ data: any; allTeamsData?: any[] }>;
   analyticsSchema?: z.ZodType<any, any, any>;
   processAnalytics?: (currentAnalytics: any, matchData: any) => any;
 }

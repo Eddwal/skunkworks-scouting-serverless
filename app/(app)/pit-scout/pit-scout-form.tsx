@@ -105,6 +105,13 @@ function PitScoutFormContent() {
         updatedAt: new Date().toISOString()
       }, { merge: true });
       
+      try {
+        const { revalidateTeamViewer } = await import('@/app/actions/revalidate');
+        await revalidateTeamViewer();
+      } catch (error) {
+        console.error('Failed to trigger revalidation:', error);
+      }
+      
       toast.success("Pit scouting data saved successfully!");
       reset();
       setPhotoFile(null);

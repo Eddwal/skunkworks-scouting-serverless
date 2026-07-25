@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { capRowSchema, baseRobotSchema, baseCapabilitiesSchema } from '@/components/pit-scouting/schemas';
-import { baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
+import { baseMatchSetupSchema, baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
 
 // Pit Scout Schemas
 export const robotSchema = baseRobotSchema.extend({
@@ -14,14 +14,33 @@ export const capabilitiesSchema = baseCapabilitiesSchema.extend({
 });
 
 export const analyticsSchema = z.object({
-  avgCoralL1: z.number().optional(),
-  avgCoralL2: z.number().optional(),
-  avgCoralL3: z.number().optional(),
-  avgCoralL4: z.number().optional(),
-  totalCoralL1: z.number().optional(),
-  totalCoralL2: z.number().optional(),
-  totalCoralL3: z.number().optional(),
-  totalCoralL4: z.number().optional(),
+  totalAutoCoralL4: z.number().optional(),
+  totalTeleopCoralL4: z.number().optional(),
+  totalOverallCoralL4: z.number().optional(),
+  avgAutoCoralL4: z.number().optional(),
+  avgTeleopCoralL4: z.number().optional(),
+  avgOverallCoralL4: z.number().optional(),
+
+  totalAutoCoralL3: z.number().optional(),
+  totalTeleopCoralL3: z.number().optional(),
+  totalOverallCoralL3: z.number().optional(),
+  avgAutoCoralL3: z.number().optional(),
+  avgTeleopCoralL3: z.number().optional(),
+  avgOverallCoralL3: z.number().optional(),
+
+  totalAutoCoralL2: z.number().optional(),
+  totalTeleopCoralL2: z.number().optional(),
+  totalOverallCoralL2: z.number().optional(),
+  avgAutoCoralL2: z.number().optional(),
+  avgTeleopCoralL2: z.number().optional(),
+  avgOverallCoralL2: z.number().optional(),
+
+  totalAutoCoralL1: z.number().optional(),
+  totalTeleopCoralL1: z.number().optional(),
+  totalOverallCoralL1: z.number().optional(),
+  avgAutoCoralL1: z.number().optional(),
+  avgTeleopCoralL1: z.number().optional(),
+  avgOverallCoralL1: z.number().optional(),
 });
 
 // Match Scout Schemas
@@ -42,3 +61,13 @@ export const teleopSchema = baseTeleopSchema.extend({
 export const endgameSchema = baseEndgameSchema.extend({
   // Add year specific endgame fields here
 });
+
+export type MatchData2025 = {
+  matchSetup: z.infer<typeof baseMatchSetupSchema>;
+  auto: z.infer<typeof autoSchema>;
+  teleop: z.infer<typeof teleopSchema>;
+  endgame: z.infer<typeof endgameSchema>;
+};
+
+import { baseAnalyticsSchema } from '@/lib/firebase/converters';
+export type AnalyticsData2025 = z.infer<typeof baseAnalyticsSchema> & z.infer<typeof analyticsSchema>;

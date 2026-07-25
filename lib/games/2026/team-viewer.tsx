@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
+import { StatWithRank } from '@/components/ui/stat-with-rank';
 import { robotSchema, capabilitiesSchema, analyticsSchema } from './schemas';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => (
@@ -94,13 +95,20 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
     </div>
 );
 
-export const AnalyticsViewerComponent = ({ data }: { data: z.infer<typeof analyticsSchema> }) => {
+export const AnalyticsViewerComponent = ({ data, allTeamsData }: { data: z.infer<typeof analyticsSchema>, allTeamsData?: any[] }) => {
   if (!data) return null;
+  
+  const getValues = (key: string) => allTeamsData?.map(t => t.analytics?.[key]).filter(v => typeof v === 'number') as number[];
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-lg">
-        <span className="text-sm text-muted-foreground">Avg Fuel Scored</span>
-        <span className="text-2xl font-bold">{data.avgFuelScored?.toFixed(1) || '0.0'}</span>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Fuel Scored</h4>
+        <div className="grid grid-cols-3 gap-4">
+          <StatWithRank label="Auto" value={data.avgAutoFuelScored} allValues={getValues('avgAutoFuelScored')} />
+          <StatWithRank label="Teleop" value={data.avgTeleopFuelScored} allValues={getValues('avgTeleopFuelScored')} />
+          <StatWithRank label="Overall" value={data.avgOverallFuelScored} allValues={getValues('avgOverallFuelScored')} />
+        </div>
       </div>
     </div>
   );

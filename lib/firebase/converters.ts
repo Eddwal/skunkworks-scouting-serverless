@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { dimensionsSchema, driveTrainSchema } from '@/components/pit-scouting/schemas';
 
-const baseAnalyticsSchema = z.object({
+export const baseAnalyticsSchema = z.object({
   matchCount: z.number(),
   uptime: z.object({
     autoDeadCount: z.number(),
@@ -63,4 +63,25 @@ export const getTeamDataConverter = (gameConfig: GameConfig): FirestoreDataConve
       }
     }
   };
+};
+
+import { baseMatchSetupSchema, baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
+
+export const getMatchDataSchema = (gameConfig: GameConfig) => {
+  return z.object({
+    eventId: z.string().optional(),
+    teamId: z.string().optional(),
+    year: z.string().optional(),
+    updatedAt: z.string().optional(),
+    matchSetup: baseMatchSetupSchema.optional(),
+    auto: gameConfig.matchScout?.autoSchema.optional(),
+    teleop: gameConfig.matchScout?.teleopSchema.optional(),
+    endgame: gameConfig.matchScout?.endgameSchema.optional(),
+  });
+};
+
+export type MatchData = Omit<z.infer<ReturnType<typeof getMatchDataSchema>>, 'auto' | 'teleop' | 'endgame'> & {
+  auto?: z.infer<typeof baseAutoSchema> & { [key: string]: any };
+  teleop?: z.infer<typeof baseTeleopSchema> & { [key: string]: any };
+  endgame?: z.infer<typeof baseEndgameSchema> & { [key: string]: any };
 };

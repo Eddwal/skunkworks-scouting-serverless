@@ -1,8 +1,9 @@
 import { db } from '@/lib/firebase/firebase-client';
 import { doc, runTransaction } from 'firebase/firestore';
 import { getGameConfig } from '@/lib/games';
+import { MatchData } from '@/lib/firebase/converters';
 
-export async function uploadMatchScoutData(data: any) {
+export async function uploadMatchScoutData(data: MatchData) {
   const eventId = data.eventId;
   const dbTeamId = data.teamId;
   const year = data.year;
@@ -16,8 +17,7 @@ export async function uploadMatchScoutData(data: any) {
     throw new Error("Missing matchKey in matchSetup");
   }
 
-  const docId = `${matchKey}_${dbTeamId}`;
-  const matchDocRef = doc(db, 'events', eventId, 'matchScout', docId);
+  const fullMatchDocRef = doc(db, 'events', eventId, 'matches', matchKey);
   const teamDocRef = doc(db, 'events', eventId, 'teams', dbTeamId);
   
   await runTransaction(db, async (transaction) => {
@@ -25,13 +25,15 @@ export async function uploadMatchScoutData(data: any) {
     const teamDoc = await transaction.get(teamDocRef);
     const currentData = teamDoc.data() || {};
     
-    // Write the individual match log
-    transaction.set(matchDocRef, {
-      ...data,
-      teamId: dbTeamId,
-      year,
-      updatedAt: new Date().toISOString()
-    });
+    // Write the individual match log to the aggregated match document
+    transaction.set(fullMatchDocRef, {
+      [dbTeamId]: {
+        ...data,
+        teamId: dbTeamId,
+        year,
+        updatedAt: new Date().toISOString()
+      }
+    }, { merge: true });
 
     // Update team analytics
     const analytics = currentData.analytics || {
@@ -80,4 +82,12 @@ export async function uploadMatchScoutData(data: any) {
     // Update the team document with the new analytics
     transaction.set(teamDocRef, { analytics: finalAnalytics }, { merge: true });
   });
+  
+  // Trigger cache invalidation for the Team Viewer dashboard
+  try {
+    const { revalidateTeamViewer } = await import('@/app/actions/revalidate');
+    await revalidateTeamViewer();
+  } catch (error) {
+    console.error('Failed to trigger revalidation:', error);
+  }
 }

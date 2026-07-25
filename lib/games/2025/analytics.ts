@@ -1,26 +1,31 @@
-export function processAnalytics(currentAnalytics: any, matchData: any) {
+import { z } from 'zod';
+import { autoSchema, teleopSchema, endgameSchema, MatchData2025, AnalyticsData2025 } from './schemas';
+import { baseMatchSetupSchema } from '@/components/match-scouting/schemas';
+import { TeamData } from '@/lib/firebase/converters';
+
+export function processAnalytics(currentAnalytics: AnalyticsData2025, matchData: MatchData2025): AnalyticsData2025 {
   const matchCount = currentAnalytics.matchCount; // This is the new match count, already incremented
   
-  const getMatchTotal = (level: string) => {
-    return (matchData.auto?.[level] || 0) + (matchData.teleop?.[level] || 0);
-  };
+  const levels = ['CoralL4', 'CoralL3', 'CoralL2', 'CoralL1'] as const;
 
-  const totalL4 = (currentAnalytics.totalCoralL4 || 0) + getMatchTotal('coralL4');
-  const totalL3 = (currentAnalytics.totalCoralL3 || 0) + getMatchTotal('coralL3');
-  const totalL2 = (currentAnalytics.totalCoralL2 || 0) + getMatchTotal('coralL2');
-  const totalL1 = (currentAnalytics.totalCoralL1 || 0) + getMatchTotal('coralL1');
+  levels.forEach(level => {
+    // the form uses camelCase e.g., coralL4, coralL3
+    const fieldName = (level.charAt(0).toLowerCase() + level.slice(1)) as 'coralL4' | 'coralL3' | 'coralL2' | 'coralL1';
 
-  currentAnalytics.totalCoralL4 = totalL4;
-  currentAnalytics.totalCoralL3 = totalL3;
-  currentAnalytics.totalCoralL2 = totalL2;
-  currentAnalytics.totalCoralL1 = totalL1;
+    const autoVal = matchData.auto?.[fieldName] || 0;
+    const teleopVal = matchData.teleop?.[fieldName] || 0;
+    const overallVal = autoVal + teleopVal;
 
-  if (matchCount > 0) {
-    currentAnalytics.avgCoralL4 = totalL4 / matchCount;
-    currentAnalytics.avgCoralL3 = totalL3 / matchCount;
-    currentAnalytics.avgCoralL2 = totalL2 / matchCount;
-    currentAnalytics.avgCoralL1 = totalL1 / matchCount;
-  }
+    currentAnalytics[`totalAuto${level}`] = (currentAnalytics[`totalAuto${level}`] || 0) + autoVal;
+    currentAnalytics[`totalTeleop${level}`] = (currentAnalytics[`totalTeleop${level}`] || 0) + teleopVal;
+    currentAnalytics[`totalOverall${level}`] = (currentAnalytics[`totalOverall${level}`] || 0) + overallVal;
+
+    if (matchCount > 0) {
+      currentAnalytics[`avgAuto${level}`] = (currentAnalytics[`totalAuto${level}`] || 0) / matchCount;
+      currentAnalytics[`avgTeleop${level}`] = (currentAnalytics[`totalTeleop${level}`] || 0) / matchCount;
+      currentAnalytics[`avgOverall${level}`] = (currentAnalytics[`totalOverall${level}`] || 0) / matchCount;
+    }
+  });
 
   return currentAnalytics;
 }
