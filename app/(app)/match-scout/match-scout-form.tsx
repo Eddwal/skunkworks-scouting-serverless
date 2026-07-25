@@ -10,7 +10,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase/firebase-client';
-import { doc, setDoc, collection, onSnapshot, query, orderBy, runTransaction } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { useEvent } from '@/hooks/use-event';
 import { getGameConfig, DEFAULT_YEAR } from '@/lib/games';
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card';

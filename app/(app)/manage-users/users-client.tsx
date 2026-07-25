@@ -117,7 +117,7 @@ export function UsersClient({ initialUsers }: { initialUsers: UserData[] }) {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Password (Optional)</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input 
                     id="password" 
                     type="password" 

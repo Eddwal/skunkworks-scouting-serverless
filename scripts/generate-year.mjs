@@ -55,6 +55,10 @@ export const teleopSchema = baseTeleopSchema.extend({
 export const endgameSchema = baseEndgameSchema.extend({
   // Add year specific endgame fields here
 });
+
+export const analyticsSchema = z.object({
+  // Add year specific analytics fields here (these will be intersected with the base analytics schema)
+});
 `;
     await fs.writeFile(path.join(baseDir, 'schemas.ts'), schemasContent);
 
@@ -157,15 +161,32 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
 `;
     await fs.writeFile(path.join(baseDir, 'team-viewer.tsx'), teamViewerContent);
 
-    // 5. Create index.ts
+    // 5. Create analytics.ts
+    const analyticsContent = `export function processAnalytics(currentAnalytics: any, matchData: any) {
+  // Add your year-specific analytics logic here!
+  // currentAnalytics contains the base metrics (matchCount, fouls, uptime).
+  // matchData contains the raw match scout submission (auto, teleop, endgame).
+  
+  // Example: 
+  // const totalCoral = (currentAnalytics.totalCoral || 0) + (matchData.teleop?.coralScored || 0);
+  // currentAnalytics.totalCoral = totalCoral;
+  // currentAnalytics.avgCoralScored = totalCoral / currentAnalytics.matchCount;
+
+  return currentAnalytics;
+}
+`;
+    await fs.writeFile(path.join(baseDir, 'analytics.ts'), analyticsContent);
+
+    // 6. Create index.ts
     const indexContent = `import { GameConfig } from '../types';
-import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema } from './schemas';
+import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema, analyticsSchema } from './schemas';
 import { PitScoutRobot } from './pit-scout/robot';
 import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';
 import { MatchScoutTeleop } from './match-scout/teleop';
 import { MatchScoutEndgame } from './match-scout/endgame';
 import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
+import { processAnalytics } from './analytics';
 
 export const Game${year}: GameConfig = {
   year: '${year}',
@@ -182,6 +203,8 @@ export const Game${year}: GameConfig = {
     autoSchema,
     teleopSchema,
     endgameSchema,
+    analyticsSchema,
+    processAnalytics,
     AutoComponent: MatchScoutAuto,
     TeleopComponent: MatchScoutTeleop,
     EndgameComponent: MatchScoutEndgame,
@@ -190,7 +213,7 @@ export const Game${year}: GameConfig = {
 `;
     await fs.writeFile(path.join(baseDir, 'index.ts'), indexContent);
 
-    // 6. Update lib/games/index.ts
+    // 7. Update lib/games/index.ts
     const indexFilePath = path.join(__dirname, '..', 'lib', 'games', 'index.ts');
     let mainIndexContent = await fs.readFile(indexFilePath, 'utf8');
     

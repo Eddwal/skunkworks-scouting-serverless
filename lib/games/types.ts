@@ -27,6 +27,8 @@ export interface MatchScoutConfig {
   TeleopComponent: React.ComponentType<FormComponentProps>;
   EndgameComponent: React.ComponentType<FormComponentProps>;
   AnalyticsViewerComponent?: React.ComponentType<{ data: any }>;
+  analyticsSchema?: z.ZodType<any, any, any>;
+  processAnalytics?: (currentAnalytics: any, matchData: any) => any;
 }
 
 export interface GameConfig {

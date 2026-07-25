@@ -27,13 +27,18 @@ export const capabilitiesSchema = baseCapabilitiesSchema.extend({
   }).default({} as any)
 });
 
+export const analyticsSchema = z.object({
+  avgFuelScored: z.number().optional(),
+  totalFuelScored: z.number().optional(),
+});
+
 // Match Scout Schemas
 export const autoSchema = baseAutoSchema.extend({
-  // Add year specific auto fields here
+  fuelScored: z.coerce.number().min(0).default(0),
 });
 
 export const teleopSchema = baseTeleopSchema.extend({
-  // Add year specific teleop fields here
+  fuelScored: z.coerce.number().min(0).default(0),
 });
 
 export const endgameSchema = baseEndgameSchema.extend({

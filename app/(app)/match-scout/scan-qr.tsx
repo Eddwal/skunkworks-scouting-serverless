@@ -17,7 +17,6 @@ export function ScanQR() {
       setIsUploading(true);
       const data = JSON.parse(decodedText);
       
-      // Basic validation to ensure it's the expected match scout data
       if (!data.eventId || !data.teamId || !data.matchSetup) {
         throw new Error("Invalid QR code data format");
       }
@@ -27,10 +26,6 @@ export function ScanQR() {
       setOpen(false);
     } catch (err: any) {
       toast.error(`Error uploading data: ${err.message}`);
-      // Note: we don't close the modal on error, allowing them to try scanning again if they wish.
-      // But we would need to resume the scanner if we paused it. 
-      // The QRScanner component currently pauses on success, so we might need a way to resume it or 
-      // just let the user close and reopen the dialog.
     } finally {
       setIsUploading(false);
     }

@@ -13,13 +13,30 @@ export const capabilitiesSchema = baseCapabilitiesSchema.extend({
   // exampleCapability: capRowSchema.default({ can: false, auto: false }),
 });
 
+export const analyticsSchema = z.object({
+  avgCoralL1: z.number().optional(),
+  avgCoralL2: z.number().optional(),
+  avgCoralL3: z.number().optional(),
+  avgCoralL4: z.number().optional(),
+  totalCoralL1: z.number().optional(),
+  totalCoralL2: z.number().optional(),
+  totalCoralL3: z.number().optional(),
+  totalCoralL4: z.number().optional(),
+});
+
 // Match Scout Schemas
 export const autoSchema = baseAutoSchema.extend({
-  // Add year specific auto fields here
+  coralL1: z.coerce.number().min(0).default(0),
+  coralL2: z.coerce.number().min(0).default(0),
+  coralL3: z.coerce.number().min(0).default(0),
+  coralL4: z.coerce.number().min(0).default(0),
 });
 
 export const teleopSchema = baseTeleopSchema.extend({
-  // Add year specific teleop fields here
+  coralL1: z.coerce.number().min(0).default(0),
+  coralL2: z.coerce.number().min(0).default(0),
+  coralL3: z.coerce.number().min(0).default(0),
+  coralL4: z.coerce.number().min(0).default(0),
 });
 
 export const endgameSchema = baseEndgameSchema.extend({

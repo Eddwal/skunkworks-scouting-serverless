@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
-import { robotSchema, capabilitiesSchema } from './schemas';
+import { robotSchema, capabilitiesSchema, analyticsSchema } from './schemas';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => (
   <div className="pt-4 border-t">
@@ -93,3 +93,15 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
       )}
     </div>
 );
+
+export const AnalyticsViewerComponent = ({ data }: { data: z.infer<typeof analyticsSchema> }) => {
+  if (!data) return null;
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-lg">
+        <span className="text-sm text-muted-foreground">Avg Fuel Scored</span>
+        <span className="text-2xl font-bold">{data.avgFuelScored?.toFixed(1) || '0.0'}</span>
+      </div>
+    </div>
+  );
+};

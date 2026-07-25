@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase/firebase-client';
 import { doc, runTransaction } from 'firebase/firestore';
+import { getGameConfig } from '@/lib/games';
 
 export async function uploadMatchScoutData(data: any) {
   const eventId = data.eventId;
@@ -69,7 +70,14 @@ export async function uploadMatchScoutData(data: any) {
       });
     }
 
+    // Apply year-specific analytics logic if defined
+    const gameConfig = getGameConfig(year);
+    let finalAnalytics = analytics;
+    if (gameConfig.matchScout?.processAnalytics) {
+      finalAnalytics = gameConfig.matchScout.processAnalytics(finalAnalytics, data);
+    }
+
     // Update the team document with the new analytics
-    transaction.set(teamDocRef, { analytics }, { merge: true });
+    transaction.set(teamDocRef, { analytics: finalAnalytics }, { merge: true });
   });
 }
