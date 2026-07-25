@@ -39,7 +39,7 @@ export const Stepper = React.forwardRef<HTMLInputElement, StepperProps>(
     };
 
     const stepperControls = (
-      <div className={cn("flex items-center justify-center space-x-2", className)}>
+      <div className={cn("flex items-center space-x-2", className)}>
         <Button 
           type="button" 
           variant="outline" 
@@ -72,7 +72,7 @@ export const Stepper = React.forwardRef<HTMLInputElement, StepperProps>(
 
     if (label) {
       return (
-        <div className="space-y-2 text-center">
+        <div className="space-y-2">
           <Label>{label}</Label>
           {stepperControls}
         </div>
