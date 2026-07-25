@@ -84,14 +84,6 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
         </div>
       </div>
 
-      {data?.autoDescription && (
-        <div className="pt-2">
-          <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 mb-2 px-1">Auto Description</h4>
-          <div className="p-3 bg-muted/30 rounded-md text-sm whitespace-pre-wrap">
-            {data.autoDescription}
-          </div>
-        </div>
-      )}
     </div>
 );
 

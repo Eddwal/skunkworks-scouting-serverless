@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Camera, X } from '@phosphor-icons/react';
+import { CameraIcon, XIcon } from '@phosphor-icons/react';
 import imageCompression from 'browser-image-compression';
 import { toast } from 'sonner';
 
@@ -70,7 +70,7 @@ export function PictureStep({ photoFile, setPhotoFile, photoPreview, setPhotoPre
               className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Camera size={48} className="mb-4 text-muted-foreground" />
+                <CameraIcon size={48} className="mb-4 text-muted-foreground" />
                 <p className="mb-2 text-sm text-muted-foreground">
                   <span className="font-semibold">Click to take a picture</span>
                 </p>
@@ -98,7 +98,7 @@ export function PictureStep({ photoFile, setPhotoFile, photoPreview, setPhotoPre
               className="absolute top-4 right-4" 
               onClick={handleClear}
             >
-              <X size={20} />
+              <XIcon size={20} />
             </Button>
           </div>
         )}

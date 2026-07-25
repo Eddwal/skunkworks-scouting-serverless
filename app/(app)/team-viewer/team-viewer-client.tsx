@@ -5,18 +5,18 @@ import { useEvent } from '@/hooks/use-event';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { getGameConfig } from '@/lib/games';
 import { TeamData } from '@/lib/firebase/converters';
+import { db } from '@/lib/firebase/firebase-client';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CircleNotch, ArrowSquareOut } from '@phosphor-icons/react';
+import { CircleNotchIcon, ArrowSquareOutIcon } from '@phosphor-icons/react';
 
 export default function TeamViewerClient({
-  initialTeams,
   initialTeam,
   serverEventId
 }: {
-  initialTeams: (TeamData & { id: string })[];
   initialTeam: string;
   serverEventId: string;
 }) {
@@ -28,7 +28,28 @@ export default function TeamViewerClient({
   // We use serverEventId or activeEvent.id to ensure the client stays in sync
   const currentEventId = serverEventId || activeEvent?.id;
   
+  const [teams, setTeams] = useState<(TeamData & { id: string })[]>([]);
+  const [loadingTeams, setLoadingTeams] = useState(true);
   const [selectedTeam, setSelectedTeam] = useState<string>(initialTeam);
+
+  useEffect(() => {
+    if (!currentEventId) return;
+    setLoadingTeams(true);
+    const unsubscribe = onSnapshot(collection(db, 'events', currentEventId, 'teams'), (snapshot) => {
+      const fetchedTeams = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as (TeamData & { id: string })[];
+      // Sort numerically
+      fetchedTeams.sort((a, b) => parseInt(a.id.replace('frc', '')) - parseInt(b.id.replace('frc', '')));
+      setTeams(fetchedTeams);
+      setLoadingTeams(false);
+    }, (error) => {
+      console.error('Error fetching teams:', error);
+      setLoadingTeams(false);
+    });
+    return () => unsubscribe();
+  }, [currentEventId]);
 
   const handleTeamChange = (val: string) => {
     setSelectedTeam(val);
@@ -39,25 +60,26 @@ export default function TeamViewerClient({
 
   useEffect(() => {
     // If we have teams but no selected team, default to the first one
-    if (initialTeams.length > 0) {
-      if (!selectedTeam || !initialTeams.some(t => t.id === selectedTeam)) {
-        handleTeamChange(initialTeams[0].id);
+    if (teams.length > 0) {
+      if (!selectedTeam || !teams.some(t => t.id === selectedTeam)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        handleTeamChange(teams[0].id);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialTeams]);
+  }, [teams]);
 
-  if (!currentEventId) {
+  if (!currentEventId || loadingTeams) {
     return (
       <div className="p-4 flex items-center">
-        <CircleNotch className="mr-2 h-4 w-4 animate-spin text-muted-foreground" />
-        <span className="text-muted-foreground">Loading event...</span>
+        <CircleNotchIcon className="mr-2 h-4 w-4 animate-spin text-muted-foreground" />
+        <span className="text-muted-foreground">Loading...</span>
       </div>
     );
   }
 
   const gameConfig = getGameConfig(currentEventId.substring(0, 4));
-  const teamData = initialTeams.find(t => t.id === selectedTeam);
+  const teamData = teams.find(t => t.id === selectedTeam);
 
   // Compute rankings
   let autoUptimeRank = 0;
@@ -66,7 +88,7 @@ export default function TeamViewerClient({
   let totalTeleopRanks = 0;
 
   if (teamData?.analytics) {
-    const validTeams = initialTeams.filter(t => t.analytics && t.analytics.matchCount > 0);
+    const validTeams = teams.filter(t => t.analytics && t.analytics.matchCount > 0);
 
     if (teamData.analytics.matchCount > 0) {
       const getAutoScore = (t: TeamData) => t.analytics!.matchCount > 0 ? (1 - (t.analytics!.uptime.autoDeadCount / t.analytics!.matchCount)) : -1;
@@ -101,7 +123,7 @@ export default function TeamViewerClient({
                 </span>
               </SelectTrigger>
               <SelectContent>
-                {initialTeams.map(team => (
+                {teams.map(team => (
                   <SelectItem key={team.id} value={team.id}>
                     {team.id.replace('frc', '')}
                   </SelectItem>
@@ -114,10 +136,10 @@ export default function TeamViewerClient({
         {teamData && (
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="shrink-0" nativeButton={false} render={<a href={`https://www.thebluealliance.com/team/${selectedTeam.replace('frc', '')}`} target="_blank" rel="noreferrer" />}>
-              TBA <ArrowSquareOut className="ml-1.5 size-3.5" />
+              TBA <ArrowSquareOutIcon className="ml-1.5 size-3.5" />
             </Button>
             <Button variant="outline" size="sm" className="shrink-0" nativeButton={false} render={<a href={`https://statbotics.io/team/${selectedTeam.replace('frc', '')}`} target="_blank" rel="noreferrer" />}>
-              Statbotics <ArrowSquareOut className="ml-1.5 size-3.5" />
+              Statbotics <ArrowSquareOutIcon className="ml-1.5 size-3.5" />
             </Button>
           </div>
         )}
@@ -257,7 +279,7 @@ export default function TeamViewerClient({
                     
                     {gameConfig.matchScout?.AnalyticsViewerComponent && (
                       <div className="pt-4 border-t">
-                        <gameConfig.matchScout.AnalyticsViewerComponent data={teamData.analytics} allTeamsData={initialTeams} />
+                        <gameConfig.matchScout.AnalyticsViewerComponent data={teamData.analytics} allTeamsData={teams} />
                       </div>
                     )}
                   </CardContent>
@@ -270,9 +292,15 @@ export default function TeamViewerClient({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                    {teamData.capabilities?.autoDescription && (
+                      <div className="bg-muted/30 p-3 rounded-md border">
+                        <div className="font-semibold text-sm mb-1 text-primary">Pit Scout - Auto Description</div>
+                        <div className="text-sm whitespace-pre-wrap">{teamData.capabilities.autoDescription}</div>
+                      </div>
+                    )}
                     {teamData.capabilities?.notes && (
                       <div className="bg-muted/30 p-3 rounded-md border">
-                        <div className="font-semibold text-sm mb-1 text-primary">Pit Scout</div>
+                        <div className="font-semibold text-sm mb-1 text-primary">Pit Scout - Notes</div>
                         <div className="text-sm whitespace-pre-wrap">{teamData.capabilities.notes}</div>
                       </div>
                     )}
@@ -282,7 +310,7 @@ export default function TeamViewerClient({
                         <div className="text-sm whitespace-pre-wrap">{note.content}</div>
                       </div>
                     ))}
-                    {!teamData.capabilities?.notes && (!teamData.analytics?.notes || teamData.analytics.notes.length === 0) && (
+                    {!teamData.capabilities?.notes && !teamData.capabilities?.autoDescription && (!teamData.analytics?.notes || teamData.analytics.notes.length === 0) && (
                       <div className="text-muted-foreground text-sm text-center py-8">No notes available.</div>
                     )}
                   </div>
@@ -292,7 +320,7 @@ export default function TeamViewerClient({
           </div>
         ) : (
           <div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed text-muted-foreground bg-muted/30">
-            {initialTeams.length === 0 ? 'No team data found for this event.' : 'Select a team to view their data.'}
+            {teams.length === 0 ? 'No team data found for this event.' : 'Select a team to view their data.'}
           </div>
         )}
       </div>

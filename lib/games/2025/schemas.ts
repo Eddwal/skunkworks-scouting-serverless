@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { capRowSchema, baseRobotSchema, baseCapabilitiesSchema } from '@/components/pit-scouting/schemas';
+import { capRowSchema, canOnlySchema, baseRobotSchema, baseCapabilitiesSchema } from '@/components/pit-scouting/schemas';
 import { baseMatchSetupSchema, baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
 
 // Pit Scout Schemas
@@ -9,8 +9,12 @@ export const robotSchema = baseRobotSchema.extend({
 });
 
 export const capabilitiesSchema = baseCapabilitiesSchema.extend({
-  // Add year specific capabilities fields here
-  // exampleCapability: capRowSchema.default({ can: false, auto: false }),
+  coralL4: capRowSchema.default({ can: false, auto: false }),
+  coralL3: capRowSchema.default({ can: false, auto: false }),
+  coralL2: capRowSchema.default({ can: false, auto: false }),
+  coralL1: capRowSchema.default({ can: false, auto: false }),
+  deepClimb: canOnlySchema.default({ can: false }),
+  shallowClimb: canOnlySchema.default({ can: false }),
 });
 
 export const analyticsSchema = z.object({

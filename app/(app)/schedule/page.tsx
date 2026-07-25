@@ -50,6 +50,7 @@ export default function SchedulePage() {
 
   useEffect(() => {
     if (!activeEventId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMatches([])
       return
     }

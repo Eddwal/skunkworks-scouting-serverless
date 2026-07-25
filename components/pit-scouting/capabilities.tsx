@@ -44,16 +44,19 @@ export const YesNoBadge = ({ val }: { val: boolean }) => (
   </Badge>
 );
 
-export const CapabilityViewerRow = ({ label, can, auto }: { label: string, can?: boolean, auto?: boolean }) => (
-  <div className="flex items-center justify-between py-2 border-b last:border-0 border-border/50">
+export const CapabilityViewerRow = ({ label, can, auto, hasAuto = true }: { label: string, can?: boolean, auto?: boolean, hasAuto?: boolean }) => (
+  <div className="flex items-center justify-between py-2 border-b last:border-0 border-border/50 px-1">
     <span className="font-medium text-sm">{label}</span>
     <div className="flex items-center space-x-4 w-32 justify-end">
-      {can !== undefined && (
-        <div className="flex justify-center w-12"><YesNoBadge val={can} /></div>
+      <div className="flex justify-center w-12">
+        {can !== undefined && <YesNoBadge val={can} />}
+      </div>
+      {hasAuto && (
+        <div className="flex justify-center w-12">
+          {auto !== undefined && <YesNoBadge val={auto} />}
+        </div>
       )}
-      {auto !== undefined && (
-        <div className="flex justify-center w-12"><YesNoBadge val={auto} /></div>
-      )}
+      {!hasAuto && <div className="w-12" />}
     </div>
   </div>
 );

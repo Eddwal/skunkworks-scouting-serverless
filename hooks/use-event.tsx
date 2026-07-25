@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { db } from '@/lib/firebase/firebase-client';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 export interface ScoutingEvent {
   id: string;
@@ -26,23 +28,46 @@ const EventContext = createContext<EventContextType>({
 
 export function EventProvider({ 
   children,
-  initialEvents 
 }: { 
   children: React.ReactNode;
-  initialEvents: ScoutingEvent[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   
-  const [events] = useState<ScoutingEvent[]>(initialEvents);
+  const [events, setEvents] = useState<ScoutingEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const eventIdParam = searchParams.get('event');
   
   const [activeEvent, setActiveEventState] = useState<ScoutingEvent | null>(null);
 
+  // Fetch events from Firestore on client
+  useEffect(() => {
+    const q = query(collection(db, 'events'), orderBy('startDate', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedEvents: ScoutingEvent[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name,
+        teams: doc.data().teams || [],
+        city: doc.data().city,
+        startDate: doc.data().startDate,
+        endDate: doc.data().endDate
+      }));
+      setEvents(fetchedEvents);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching events:", error);
+      setLoading(false);
+    });
+    
+    return () => unsubscribe();
+  }, []);
+
   // Sync state on load and URL changes
   useEffect(() => {
+    if (loading) return; // Wait until events are fetched
+
     let currentEventId = eventIdParam;
     
     // If no event in URL, try to get from localStorage
@@ -59,6 +84,7 @@ export function EventProvider({
     // Update active state
     if (currentEventId) {
       const eventObj = events.find(e => e.id === currentEventId) || null;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveEventState(eventObj);
       if (eventObj) {
         localStorage.setItem('skunkworks_active_event', eventObj.id);
@@ -72,7 +98,7 @@ export function EventProvider({
         router.replace(`${pathname}?${params.toString()}`);
       }
     }
-  }, [eventIdParam, events, pathname, router, searchParams]);
+  }, [eventIdParam, events, pathname, router, searchParams, loading]);
 
   const setActiveEvent = (eventId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -81,6 +107,10 @@ export function EventProvider({
     // Push a new history entry when explicitly changing
     router.push(`${pathname}?${params.toString()}`);
   };
+
+  if (loading) {
+    return <div className="flex h-svh w-full items-center justify-center">Loading events...</div>;
+  }
 
   return (
     <EventContext.Provider value={{ events, activeEvent, setActiveEvent }}>

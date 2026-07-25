@@ -2,7 +2,6 @@ import { Controller } from 'react-hook-form';
 import { FormComponentProps } from '../../types';
 import { BaseAutoForm } from '@/components/match-scouting/base-auto-form';
 import { Stepper } from '@/components/ui/stepper';
-import { Label } from '@/components/ui/label';
 
 export function MatchScoutAuto(props: FormComponentProps) {
   const { control } = props;
@@ -10,30 +9,18 @@ export function MatchScoutAuto(props: FormComponentProps) {
   return (
     <BaseAutoForm {...props} yearSpecificTitle="2025 Auto">
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Coral L4</Label>
-          <Controller name="auto.coralL4" control={control} render={({ field }) => (
-            <Stepper value={field.value} onChange={field.onChange} min={0} />
-          )} />
-        </div>
-        <div className="space-y-2">
-          <Label>Coral L3</Label>
-          <Controller name="auto.coralL3" control={control} render={({ field }) => (
-            <Stepper value={field.value} onChange={field.onChange} min={0} />
-          )} />
-        </div>
-        <div className="space-y-2">
-          <Label>Coral L2</Label>
-          <Controller name="auto.coralL2" control={control} render={({ field }) => (
-            <Stepper value={field.value} onChange={field.onChange} min={0} />
-          )} />
-        </div>
-        <div className="space-y-2">
-          <Label>Coral L1</Label>
-          <Controller name="auto.coralL1" control={control} render={({ field }) => (
-            <Stepper value={field.value} onChange={field.onChange} min={0} />
-          )} />
-        </div>
+        <Controller name="auto.coralL4" control={control} render={({ field }) => (
+          <Stepper value={field.value} onChange={field.onChange} min={0} label="Coral L4" />
+        )} />
+        <Controller name="auto.coralL3" control={control} render={({ field }) => (
+          <Stepper value={field.value} onChange={field.onChange} min={0} label="Coral L3" />
+        )} />
+        <Controller name="auto.coralL2" control={control} render={({ field }) => (
+          <Stepper value={field.value} onChange={field.onChange} min={0} label="Coral L2" />
+        )} />
+        <Controller name="auto.coralL1" control={control} render={({ field }) => (
+          <Stepper value={field.value} onChange={field.onChange} min={0} label="Coral L1" />
+        )} />
       </div>
     </BaseAutoForm>
   );

@@ -1,0 +1,308 @@
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/match-scout/match-scout-form.tsx
+  147:18  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/match-scout/match-scout-form.tsx:147:18
+  145 |   const handleGenerateQR = (e: React.MouseEvent) => {
+  146 |     e.preventDefault();
+> 147 |     const data = watch();
+      |                  ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  148 |     const activeTeamId = data.matchSetup.isSubstitute && data.matchSetup.substituteTeamId 
+  149 |       ? data.matchSetup.substituteTeamId 
+  150 |       : data.matchSetup.scheduledTeamId;  react-hooks/incompatible-library
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/match-scout/saved-qr-codes.tsx
+  23:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/pit-scout/pit-scout-form.tsx
+  18:29  warning  'CardDescription' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  53:24  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/pit-scout/pit-scout-form.tsx:53:24
+  51 |   });
+  52 |
+> 53 |   const watchEventId = watch('eventId');
+     |                        ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  54 |   const watchTeamId = watch('teamId');
+  55 |   const selectedEvent = events.find(e => e.id === watchEventId);
+  56 |   const teams = selectedEvent?.teams || [];  react-hooks/incompatible-library
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/schedule/page.tsx
+  10:16  warning  'CardHeader' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  10:28  warning  'CardTitle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  10:39  warning  'CardDescription' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  10:56  warning  'CardContent' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  10:69  warning  'CardFooter' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  12:10  warning  'Badge' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  24:8   warning  'Link' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  25:10  warning  'ArrowLeftIcon' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  27:50  warning  'getDocs' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  53:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/schedule/page.tsx:53:7
+  51 |   useEffect(() => {
+  52 |     if (!activeEventId) {
+> 53 |       setMatches([])
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  54 |       return
+  55 |     }
+  56 |  react-hooks/set-state-in-effect
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/team-viewer/team-viewer-client.tsx
+   9:60  warning  'SelectValue' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  44:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/(app)/team-viewer/team-viewer-client.tsx:44:9
+  42 |     if (initialTeams.length > 0) {
+  43 |       if (!selectedTeam || !initialTeams.some(t => t.id === selectedTeam)) {
+> 44 |         handleTeamChange(initialTeams[0].id);
+     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  45 |       }
+  46 |     }
+  47 |   // eslint-disable-next-line react-hooks/exhaustive-deps  react-hooks/set-state-in-effect
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/actions/rbac.ts
+  4:10  warning  'headers' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/app/layout.tsx
+  1:10  warning  'Geist' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/global-nav.tsx
+  5:23  warning  'useRouter' is defined but never used  @typescript-eslint/no-unused-vars
+  8:10  warning  'Button' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/login-form.tsx
+  31:13  warning  '_onSubmit' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/match-scouting/setup-step.tsx
+  3:10  warning  'Input' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/pit-scouting/picture-step.tsx
+  16:31  warning  'photoFile' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  93:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/pit-scouting/review-step.tsx
+  31:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  51:18  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  51:25  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/theme-provider.tsx
+  4:47  warning  'useTheme' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/ui/data-table.tsx
+  43:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/components/ui/data-table.tsx:43:17
+  41 |   );
+  42 |
+> 43 |   const table = useReactTable({
+     |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  44 |     data,
+  45 |     columns,
+  46 |     getCoreRowModel: getCoreRowModel(),  react-hooks/incompatible-library
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/hooks/use-event.tsx
+  62:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/hooks/use-event.tsx:62:7
+  60 |     if (currentEventId) {
+  61 |       const eventObj = events.find(e => e.id === currentEventId) || null;
+> 62 |       setActiveEventState(eventObj);
+     |       ^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  63 |       if (eventObj) {
+  64 |         localStorage.setItem('skunkworks_active_event', eventObj.id);
+  65 |       }  react-hooks/set-state-in-effect
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/firebase/converters.ts
+  40:7  warning  'baseRobotSchema' is assigned a value but only used as a type  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/firebase/firebase-client.ts
+  3:10  warning  'getFirestore' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2025/analytics.ts
+  1:10  warning  'z' is defined but never used                     @typescript-eslint/no-unused-vars
+  2:10  warning  'autoSchema' is defined but never used            @typescript-eslint/no-unused-vars
+  2:22  warning  'teleopSchema' is defined but never used          @typescript-eslint/no-unused-vars
+  2:36  warning  'endgameSchema' is defined but never used         @typescript-eslint/no-unused-vars
+  3:10  warning  'baseMatchSetupSchema' is defined but never used  @typescript-eslint/no-unused-vars
+  4:10  warning  'TeamData' is defined but never used              @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2025/match-scout/endgame.tsx
+  1:10  warning  'Controller' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2025/pit-scout/capabilities.tsx
+  1:10  warning  'Controller' is defined but never used        @typescript-eslint/no-unused-vars
+  3:10  warning  'CapabilityRow' is defined but never used     @typescript-eslint/no-unused-vars
+  3:25  warning  'SectionHeader' is defined but never used     @typescript-eslint/no-unused-vars
+  7:11  warning  'control' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2025/pit-scout/robot.tsx
+  1:10  warning  'Controller' is defined but never used        @typescript-eslint/no-unused-vars
+  2:10  warning  'Label' is defined but never used             @typescript-eslint/no-unused-vars
+  3:10  warning  'Input' is defined but never used             @typescript-eslint/no-unused-vars
+  8:11  warning  'control' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  8:20  warning  'errors' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2025/schemas.ts
+  2:10  warning  'capRowSchema' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2025/team-viewer.tsx
+  2:10  warning  'CapabilityViewerRow' is defined but never used  @typescript-eslint/no-unused-vars
+  6:40  warning  'data' is defined but never used                 @typescript-eslint/no-unused-vars
+  8:47  warning  'data' is defined but never used                 @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2026/match-scout/endgame.tsx
+  1:10  warning  'Controller' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2026/pit-scout/robot.tsx
+  1:10  warning  'Controller' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2027/match-scout/auto.tsx
+  1:10  warning  'Controller' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2027/match-scout/endgame.tsx
+  1:10  warning  'Controller' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2027/match-scout/teleop.tsx
+  1:10  warning  'Controller' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2027/pit-scout/capabilities.tsx
+  1:10  warning  'Controller' is defined but never used        @typescript-eslint/no-unused-vars
+  3:10  warning  'CapabilityRow' is defined but never used     @typescript-eslint/no-unused-vars
+  3:25  warning  'SectionHeader' is defined but never used     @typescript-eslint/no-unused-vars
+  7:11  warning  'control' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2027/pit-scout/robot.tsx
+  1:10  warning  'Controller' is defined but never used        @typescript-eslint/no-unused-vars
+  2:10  warning  'Label' is defined but never used             @typescript-eslint/no-unused-vars
+  3:10  warning  'Input' is defined but never used             @typescript-eslint/no-unused-vars
+  8:11  warning  'control' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  8:20  warning  'errors' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2027/schemas.ts
+  1:10  warning  'z' is defined but never used             @typescript-eslint/no-unused-vars
+  2:10  warning  'capRowSchema' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/lib/games/2027/team-viewer.tsx
+  2:10  warning  'CapabilityViewerRow' is defined but never used  @typescript-eslint/no-unused-vars
+  5:40  warning  'data' is defined but never used                 @typescript-eslint/no-unused-vars
+  7:47  warning  'data' is defined but never used                 @typescript-eslint/no-unused-vars
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/public/auth-sw.js
+  3:1  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  5:1  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/Users/eddy/Documents/Programming/skunkworks-scouting/public/sw.js
+  1:339    warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:866    warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:1626   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:1702   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:1729   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:1745   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:2224   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:2334   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:2350   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:2411   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:2963   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:3938   error    Unexpected aliasing of 'this' to local variable                        @typescript-eslint/no-this-alias
+  1:4064   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:4646   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:4891   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:5753   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:5947   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:6004   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:6142   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:7032   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:7090   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:7827   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:8380   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:8786   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:9449   warning  'e' is defined but never used                                          @typescript-eslint/no-unused-vars
+  1:9473   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:9722   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:13459  warning  'e' is defined but never used                                          @typescript-eslint/no-unused-vars
+  1:13774  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:13954  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:14757  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:14861  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:15056  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:15330  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:15597  warning  't' is defined but never used                                          @typescript-eslint/no-unused-vars
+  1:15791  warning  'a' is defined but never used                                          @typescript-eslint/no-unused-vars
+  1:15856  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:16007  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:16335  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:16542  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:16907  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:17371  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:17935  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:18053  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:18249  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:19203  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:19407  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:19784  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:20122  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:20253  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:20350  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:20620  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:20912  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:21299  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:21760  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:22106  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:22231  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:22819  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:23368  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:23492  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:24102  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:24937  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:26242  warning  'e' is defined but never used                                          @typescript-eslint/no-unused-vars
+  1:26559  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:26686  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:26904  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:27261  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:27341  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:27471  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:27526  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:29750  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:29855  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:30109  warning  'e' is defined but never used                                          @typescript-eslint/no-unused-vars
+  1:30517  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:30688  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:30829  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:31079  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:31654  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  1:31717  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  2:152    warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  2:686    warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  2:948    warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  2:1103   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  2:1345   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  2:1941   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  2:3558   warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+✖ 159 problems (8 errors, 151 warnings)
+
