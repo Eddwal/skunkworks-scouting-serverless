@@ -18,13 +18,6 @@ interface AllianceRadarChartProps {
 export function AllianceRadarChart({ teams, teamsData, alliance, gameConfig }: AllianceRadarChartProps) {
   // Generate chart data based on game config metrics
   const chartData = useMemo(() => {
-    // We want a data structure like:
-    // [
-    //   { metric: "Coral L1", team1: 10, team2: 5, team3: 8 },
-    //   { metric: "Coral L2", team1: 5, team2: 12, team3: 2 },
-    //   ...
-    // ]
-
     const metrics = gameConfig?.preMatch?.radarMetrics || []
 
     const metricMaxes: Record<string, number> = {}
@@ -89,13 +82,13 @@ export function AllianceRadarChart({ teams, teamsData, alliance, gameConfig }: A
 
   return (
     <Card className={alliance === "red" ? "border-red-500/20 bg-red-500/5" : "border-blue-500/20 bg-blue-500/5"}>
-      <CardContent className="pt-6 pb-2">
+      <CardContent className="pb-2">
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[300px]"
         >
-          <RadarChart data={chartData} margin={{ top: 45, right: 45, bottom: 45, left: 45 }}>
-            <ChartLegend content={<ChartLegendContent />} />
+          <RadarChart data={chartData} margin={{ right: 10, bottom: 20, left: 10 }} outerRadius="65%">
+            <ChartLegend className="mt-2" content={<ChartLegendContent />} />
             <PolarGrid />
             <PolarAngleAxis dataKey="metric" tick={{ fontSize: 12 }} />
             <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
