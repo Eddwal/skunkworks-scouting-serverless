@@ -44,7 +44,6 @@ function DashboardPageContent() {
   const { activeEvent } = useEvent()
   const year = activeEvent?.id ? activeEvent.id.substring(0, 4) : DEFAULT_YEAR
   const gameConfig = getGameConfig(year)
-  const DashboardComponent = gameConfig.DashboardComponent
 
   return (
     <div className="flex-1 p-6 md:p-10">
@@ -55,13 +54,7 @@ function DashboardPageContent() {
                 <p className="text-muted-foreground">{gameConfig.year} - {gameConfig.name}</p>
              </div>
           </div>
-          
-          {/* Year specific dashboard content */}
-          {DashboardComponent && (
-            <div className="space-y-4">
-               <DashboardComponent />
-            </div>
-          )}
+
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold tracking-tight">Apps</h3>

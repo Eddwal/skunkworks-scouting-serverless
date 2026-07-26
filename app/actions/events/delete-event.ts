@@ -48,7 +48,7 @@ export async function deleteEvent(eventKey: string, clientToken?: string) {
     
     await eventRef.delete();
     
-    revalidatePath('/(app)', 'layout');
+    revalidatePath('/', 'layout');
     
     return { success: true, message: `Successfully deleted event ${eventKey}` };
   } catch (err: any) {

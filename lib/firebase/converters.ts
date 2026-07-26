@@ -19,13 +19,22 @@ export const baseAnalyticsSchema = z.object({
   notes: z.array(z.object({
     title: z.string(),
     content: z.string(),
-  }))
+  })),
+  matchHistory: z.array(z.object({
+    matchKey: z.string(),
+    auto: z.number(),
+    teleop: z.number(),
+    endgame: z.number(),
+    total: z.number(),
+  })).optional()
 });
 
 export const getTeamDataSchema = (gameConfig: GameConfig) => {
   return z.object({
     eventId: z.string().optional(),
     teamId: z.string().optional(),
+    name: z.string().optional(),
+    nickname: z.string().optional(),
     photoUrl: z.string().url().optional().or(z.literal('')),
     year: z.string().optional(),
     updatedAt: z.string().optional(),

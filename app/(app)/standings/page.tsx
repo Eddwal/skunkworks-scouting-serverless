@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import TeamViewerClient from './team-viewer-client';
+import StandingsClient from './standings-client';
 import { adminDb } from '@/lib/firebase/firebase-admin';
 import { TeamData } from '@/lib/firebase/converters';
 import { unstable_cache } from 'next/cache';
@@ -12,27 +12,26 @@ const getCachedTeams = unstable_cache(
       ...doc.data()
     })) as (TeamData & { id: string })[];
     
-    // Sort numerically
+    // Sort numerically initially
     fetchedTeams.sort((a, b) => parseInt(a.id.replace('frc', '')) - parseInt(b.id.replace('frc', '')));
     return fetchedTeams;
   },
   ['teams-for-event'],
-  { tags: ['events'] }
+  { tags: ['events', 'standings'] } // Added standings tag here
 );
 
 export const metadata = {
-  title: 'Team Viewer',
-  description: 'Analyze team performance',
+  title: 'Standings',
+  description: 'Leaderboard of all teams',
 };
 
-export default async function TeamViewerPage({
+export default async function StandingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ event?: string; team?: string }>;
+  searchParams: Promise<{ event?: string }>;
 }) {
   const resolvedParams = await searchParams;
   const eventId = resolvedParams.event || '';
-  const initialTeam = resolvedParams.team || '';
 
   let initialTeams: (TeamData & { id: string })[] = [];
 
@@ -45,10 +44,9 @@ export default async function TeamViewerPage({
   }
 
   return (
-    <Suspense fallback={<div className="p-4">Loading Team Viewer...</div>}>
-      <TeamViewerClient 
+    <Suspense fallback={<div className="p-4">Loading Standings...</div>}>
+      <StandingsClient 
         initialTeams={initialTeams}
-        initialTeam={initialTeam}
         serverEventId={eventId}
       />
     </Suspense>

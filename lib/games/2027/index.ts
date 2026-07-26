@@ -1,11 +1,13 @@
 import { GameConfig } from '../types';
-import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema } from './schemas';
+import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema, analyticsSchema, AnalyticsData2027 } from './schemas';
 import { PitScoutRobot } from './pit-scout/robot';
 import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';
 import { MatchScoutTeleop } from './match-scout/teleop';
 import { MatchScoutEndgame } from './match-scout/endgame';
 import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
+import { processAnalytics, calculateMatchPoints } from './analytics';
+import { calculateStandings } from './standings';
 
 export const Game2027: GameConfig = {
   year: '2027',
@@ -22,8 +24,14 @@ export const Game2027: GameConfig = {
     autoSchema,
     teleopSchema,
     endgameSchema,
+    analyticsSchema,
+    processAnalytics,
     AutoComponent: MatchScoutAuto,
     TeleopComponent: MatchScoutTeleop,
     EndgameComponent: MatchScoutEndgame,
   },
+  standings: {
+    calculateStandings
+  },
+  calculateMatchPoints
 };

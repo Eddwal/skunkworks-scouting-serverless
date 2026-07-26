@@ -59,6 +59,10 @@ export const endgameSchema = baseEndgameSchema.extend({
 export const analyticsSchema = z.object({
   // Add year specific analytics fields here (these will be intersected with the base analytics schema)
 });
+
+import { baseAnalyticsSchema } from '@/lib/firebase/converters';
+
+export type AnalyticsData${year} = z.infer<typeof baseAnalyticsSchema> & z.infer<typeof analyticsSchema>;
 `;
     await fs.writeFile(path.join(baseDir, 'schemas.ts'), schemasContent);
 
@@ -167,26 +171,102 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
   // currentAnalytics contains the base metrics (matchCount, fouls, uptime).
   // matchData contains the raw match scout submission (auto, teleop, endgame).
   
-  // Example: 
-  // const totalCoral = (currentAnalytics.totalCoral || 0) + (matchData.teleop?.coralScored || 0);
-  // currentAnalytics.totalCoral = totalCoral;
-  // currentAnalytics.avgCoralScored = totalCoral / currentAnalytics.matchCount;
-
   return currentAnalytics;
+}
+
+export function calculateMatchPoints(matchData: any) {
+  // Add your year-specific logic here
+  const autoPoints = 0;
+  const teleopPoints = 0;
+  const endgamePoints = 0;
+
+  return {
+    matchKey: matchData.matchSetup?.matchKey || '',
+    auto: autoPoints,
+    teleop: teleopPoints,
+    endgame: endgamePoints,
+    total: autoPoints + teleopPoints + endgamePoints
+  };
 }
 `;
     await fs.writeFile(path.join(baseDir, 'analytics.ts'), analyticsContent);
 
-    // 6. Create index.ts
+    // 6. Create standings.ts
+    const standingsContent = `import { TeamData } from '@/lib/firebase/converters';
+import { AnalyticsData${year} } from './schemas';
+
+export const calculateStandings = (teams: (TeamData & { id: string })[]) => {
+  return teams.map(team => {
+    const analytics = team.analytics as AnalyticsData${year} | undefined;
+    let autoPoints = 0;
+    let teleopPoints = 0;
+    let endgamePoints = 0;
+
+    if (analytics?.matchHistory && analytics.matchHistory.length > 0) {
+      const matchCount = analytics.matchHistory.length;
+      autoPoints = analytics.matchHistory.reduce((sum, match) => sum + match.auto, 0) / matchCount;
+      teleopPoints = analytics.matchHistory.reduce((sum, match) => sum + match.teleop, 0) / matchCount;
+      endgamePoints = analytics.matchHistory.reduce((sum, match) => sum + match.endgame, 0) / matchCount;
+    }
+
+    return {
+      teamId: team.id,
+      auto: Number(autoPoints.toFixed(1)),
+      teleop: Number(teleopPoints.toFixed(1)),
+      endgame: Number(endgamePoints.toFixed(1)),
+      total: autoPoints + teleopPoints + endgamePoints,
+    };
+  }).sort((a, b) => b.total - a.total).map((t, index) => ({
+    ...t,
+    rank: index + 1
+  }));
+};
+`;
+    await fs.writeFile(path.join(baseDir, 'standings.ts'), standingsContent);
+
+    // 7. Create Pre-Match Components
+    await fs.mkdir(path.join(baseDir, 'pre-match'), { recursive: true });
+    
+    const preMatchStatsContent = `import { TeamData } from "@/lib/firebase/converters"
+
+export function Year${year}Stats({ teamData, allTeams }: { teamData?: TeamData; allTeams: Record<string, TeamData> }) {
+  if (!teamData) return null;
+  return (
+    <div className="grid grid-cols-2 gap-3 p-4 border border-dashed rounded-lg text-center text-sm text-muted-foreground">
+      Define ${year} specific stats here
+    </div>
+  )
+}
+`;
+    await fs.writeFile(path.join(baseDir, 'pre-match', 'stats.tsx'), preMatchStatsContent);
+
+    const preMatchCapabilitiesContent = `import { z } from "zod"
+import { capabilitiesSchema } from "../schemas"
+
+export function Year${year}CapabilitiesBadge({ capabilities }: { capabilities?: z.infer<typeof capabilitiesSchema> }) {
+  if (!capabilities) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+      {/* Add year specific capability badges here */}
+    </div>
+  )
+}
+`;
+    await fs.writeFile(path.join(baseDir, 'pre-match', 'capabilities-badge.tsx'), preMatchCapabilitiesContent);
+
+    // 8. Create index.ts
     const indexContent = `import { GameConfig } from '../types';
-import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema, analyticsSchema } from './schemas';
+import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema, analyticsSchema, AnalyticsData${year} } from './schemas';
 import { PitScoutRobot } from './pit-scout/robot';
 import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';
 import { MatchScoutTeleop } from './match-scout/teleop';
 import { MatchScoutEndgame } from './match-scout/endgame';
 import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
-import { processAnalytics } from './analytics';
+import { processAnalytics, calculateMatchPoints } from './analytics';
+import { calculateStandings } from './standings';
+import { Year${year}Stats } from './pre-match/stats';
+import { Year${year}CapabilitiesBadge } from './pre-match/capabilities-badge';
 
 export const Game${year}: GameConfig = {
   year: '${year}',
@@ -209,11 +289,22 @@ export const Game${year}: GameConfig = {
     TeleopComponent: MatchScoutTeleop,
     EndgameComponent: MatchScoutEndgame,
   },
+  standings: {
+    calculateStandings
+  },
+  preMatch: {
+    StatsComponent: Year${year}Stats,
+    CapabilitiesBadgeComponent: Year${year}CapabilitiesBadge,
+    radarMetrics: [
+      // Add radar metrics here, e.g. { key: "avgPoints", label: "Points" }
+    ],
+  },
+  calculateMatchPoints
 };
 `;
     await fs.writeFile(path.join(baseDir, 'index.ts'), indexContent);
 
-    // 7. Update lib/games/index.ts
+    // 8. Update lib/games/index.ts
     const indexFilePath = path.join(__dirname, '..', 'lib', 'games', 'index.ts');
     let mainIndexContent = await fs.readFile(indexFilePath, 'utf8');
     

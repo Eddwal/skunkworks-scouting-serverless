@@ -45,6 +45,9 @@ export const analyticsSchema = z.object({
   avgAutoCoralL1: z.number().optional(),
   avgTeleopCoralL1: z.number().optional(),
   avgOverallCoralL1: z.number().optional(),
+
+  totalDeepClimbs: z.number().optional(),
+  totalShallowClimbs: z.number().optional(),
 });
 
 // Match Scout Schemas
@@ -63,7 +66,7 @@ export const teleopSchema = baseTeleopSchema.extend({
 });
 
 export const endgameSchema = baseEndgameSchema.extend({
-  // Add year specific endgame fields here
+  climbStatus: z.enum(['none', 'shallow', 'deep']).default('none'),
 });
 
 export type MatchData2025 = {

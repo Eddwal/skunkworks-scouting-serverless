@@ -27,5 +27,11 @@ export function processAnalytics(currentAnalytics: AnalyticsData2025, matchData:
     }
   });
 
+  if (matchData.endgame?.climbStatus === 'deep') {
+    currentAnalytics.totalDeepClimbs = (currentAnalytics.totalDeepClimbs || 0) + 1;
+  } else if (matchData.endgame?.climbStatus === 'shallow') {
+    currentAnalytics.totalShallowClimbs = (currentAnalytics.totalShallowClimbs || 0) + 1;
+  }
+
   return currentAnalytics;
 }

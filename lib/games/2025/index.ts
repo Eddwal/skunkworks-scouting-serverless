@@ -8,6 +8,9 @@ import { MatchScoutEndgame } from './match-scout/endgame';
 import { RobotViewerComponent, CapabilitiesViewerComponent, AnalyticsViewerComponent } from './team-viewer';
 import { processAnalytics } from './analytics';
 
+import { ReefscapeStats } from './pre-match/stats';
+import { ReefscapeCapabilitiesBadge } from './pre-match/capabilities-badge';
+
 export const Game2025: GameConfig = {
   year: '2025',
   name: 'Reefscape',
@@ -29,5 +32,17 @@ export const Game2025: GameConfig = {
     TeleopComponent: MatchScoutTeleop,
     EndgameComponent: MatchScoutEndgame,
     AnalyticsViewerComponent,
+  },
+  preMatch: {
+    StatsComponent: ReefscapeStats,
+    CapabilitiesBadgeComponent: ReefscapeCapabilitiesBadge,
+    radarMetrics: [
+      { key: "avgOverallCoralL1", label: "Coral L1" },
+      { key: "avgOverallCoralL2", label: "Coral L2" },
+      { key: "avgOverallCoralL3", label: "Coral L3" },
+      { key: "avgOverallCoralL4", label: "Coral L4" },
+      { key: "totalDeepClimbs", label: "Deep Climb" },
+      { key: "totalShallowClimbs", label: "Shallow Climb" },
+    ],
   },
 };

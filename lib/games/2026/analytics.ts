@@ -19,3 +19,17 @@ export function processAnalytics(currentAnalytics: AnalyticsData2026, matchData:
 
   return currentAnalytics;
 }
+
+export function calculateMatchPoints(matchData: MatchData2026) {
+  const autoPoints = matchData.auto?.fuelScored || 0; // Assuming 1 fuel = 1 point as requested before
+  const teleopPoints = matchData.teleop?.fuelScored || 0;
+  const endgamePoints = 0; // Not tracked for 2026 yet
+
+  return {
+    matchKey: matchData.matchSetup?.matchKey || '',
+    auto: autoPoints,
+    teleop: teleopPoints,
+    endgame: endgamePoints,
+    total: autoPoints + teleopPoints + endgamePoints
+  };
+}

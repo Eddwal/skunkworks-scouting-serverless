@@ -88,7 +88,7 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
 
   try {
     await batch.commit();
-    revalidatePath('/(app)', 'layout');
+    revalidatePath('/', 'layout');
   } catch (err: any) {
     throw new Error(`Firestore commit failed: ${err.message}. Are you running the Firebase Emulator?`);
   }

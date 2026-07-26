@@ -25,3 +25,11 @@ export const teleopSchema = baseTeleopSchema.extend({
 export const endgameSchema = baseEndgameSchema.extend({
   // Add year specific endgame fields here
 });
+
+export const analyticsSchema = z.object({
+  // Add year specific analytics fields here (these will be intersected with the base analytics schema)
+});
+
+import { baseAnalyticsSchema } from '@/lib/firebase/converters';
+
+export type AnalyticsData2027 = z.infer<typeof baseAnalyticsSchema> & z.infer<typeof analyticsSchema>;

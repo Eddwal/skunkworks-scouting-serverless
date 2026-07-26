@@ -31,12 +31,45 @@ export interface MatchScoutConfig {
   processAnalytics?: (currentAnalytics: any, matchData: any) => any;
 }
 
+import { TeamData } from '@/lib/firebase/converters';
+
+export interface StandingsData {
+  teamId: string;
+  rank?: number;
+  total: number;
+  [key: string]: any; // Allow arbitrary keys for game segments
+}
+
+export interface StandingsConfig {
+  calculateStandings: (teams: (TeamData & { id: string })[]) => StandingsData[];
+}
+
+export interface MatchPoints {
+  matchKey: string;
+  auto: number;
+  teleop: number;
+  endgame: number;
+  total: number;
+}
+
+export interface PreMatchConfig {
+  StatsComponent?: React.ComponentType<{ 
+    teamData?: TeamData; 
+    allTeams: Record<string, TeamData>;
+  }>;
+  CapabilitiesBadgeComponent?: React.ComponentType<{ 
+    capabilities?: any;
+  }>;
+  radarMetrics?: { key: string; label: string }[];
+}
+
 export interface GameConfig {
   year: string;
   name: string;
   
   pitScout: PitScoutConfig;
   matchScout?: MatchScoutConfig;
-
-  DashboardComponent?: React.FC;
+  standings?: StandingsConfig;
+  preMatch?: PreMatchConfig;
+  calculateMatchPoints?: (matchData: any) => MatchPoints;
 }

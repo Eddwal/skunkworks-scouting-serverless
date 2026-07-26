@@ -78,15 +78,29 @@ export async function uploadMatchScoutData(data: MatchData) {
     if (gameConfig.matchScout?.processAnalytics) {
       finalAnalytics = gameConfig.matchScout.processAnalytics(finalAnalytics, data);
     }
+    
+    // Compute and append match points
+    if (gameConfig.calculateMatchPoints) {
+      if (!finalAnalytics.matchHistory) {
+        finalAnalytics.matchHistory = [];
+      }
+      const matchPoints = gameConfig.calculateMatchPoints(data);
+      // Ensure matchKey is present in case it's not set by calculateMatchPoints
+      finalAnalytics.matchHistory.push({
+        ...matchPoints,
+        matchKey: matchPoints.matchKey || matchKey
+      });
+    }
 
     // Update the team document with the new analytics
     transaction.set(teamDocRef, { analytics: finalAnalytics }, { merge: true });
   });
   
-  // Trigger cache invalidation for the Team Viewer dashboard
+  // Trigger cache invalidation for the Team Viewer and Standings dashboard
   try {
-    const { revalidateTeamViewer } = await import('@/app/actions/revalidate');
+    const { revalidateTeamViewer, revalidateStandings } = await import('@/app/actions/revalidate');
     await revalidateTeamViewer();
+    await revalidateStandings();
   } catch (error) {
     console.error('Failed to trigger revalidation:', error);
   }
