@@ -65,8 +65,10 @@ export default function TeamViewerClient({
   // Compute rankings
   let autoUptimeRank = 0;
   let teleopUptimeRank = 0;
+  let autoMovedRank = 0;
   let totalAutoRanks = 0;
   let totalTeleopRanks = 0;
+  let totalAutoMovedRanks = 0;
 
   if (teamData?.analytics) {
     const validTeams = initialTeams.filter(t => t.analytics && t.analytics.matchCount > 0);
@@ -74,19 +76,26 @@ export default function TeamViewerClient({
     if (teamData.analytics.matchCount > 0) {
       const getAutoScore = (t: TeamData) => t.analytics!.matchCount > 0 ? (1 - (t.analytics!.uptime.autoDeadCount / t.analytics!.matchCount)) : -1;
       const getTeleopScore = (t: TeamData) => t.analytics!.matchCount > 0 ? (1 - (t.analytics!.uptime.teleopDeadCount / t.analytics!.matchCount)) : -1;
+      const getAutoMovedScore = (t: TeamData) => t.analytics!.matchCount > 0 ? (t.analytics!.autoMovedPercentage ?? -1) : -1;
 
       // Extract all unique scores to determine dense ranks
       const uniqueAutoScores = Array.from(new Set(validTeams.map(getAutoScore))).sort((a, b) => b - a);
       const uniqueTeleopScores = Array.from(new Set(validTeams.map(getTeleopScore))).sort((a, b) => b - a);
+      const uniqueAutoMovedScores = Array.from(new Set(validTeams.map(getAutoMovedScore).filter(s => s !== -1))).sort((a, b) => b - a);
 
       totalAutoRanks = uniqueAutoScores.length;
       totalTeleopRanks = uniqueTeleopScores.length;
+      totalAutoMovedRanks = uniqueAutoMovedScores.length;
 
       const currentAutoScore = getAutoScore(teamData);
       const currentTeleopScore = getTeleopScore(teamData);
+      const currentAutoMovedScore = getAutoMovedScore(teamData);
 
       autoUptimeRank = uniqueAutoScores.indexOf(currentAutoScore) + 1;
       teleopUptimeRank = uniqueTeleopScores.indexOf(currentTeleopScore) + 1;
+      if (currentAutoMovedScore !== -1) {
+        autoMovedRank = uniqueAutoMovedScores.indexOf(currentAutoMovedScore) + 1;
+      }
     }
   }
 
@@ -269,19 +278,28 @@ export default function TeamViewerClient({
                       <CardDescription>Aggregate data from {teamData.analytics.matchCount} matches</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4 text-center">
-                        <div className="bg-muted/50 p-3 rounded-md flex flex-col justify-center">
+                      <div className={`grid ${teamData.analytics.autoMovedPercentage !== undefined ? 'grid-cols-3' : 'grid-cols-2'} gap-4 text-center`}>
+                        <div className="bg-muted/50 px-5 py-4 rounded-md flex flex-col justify-center">
                           <div className="text-2xl font-bold">{teamData.analytics.matchCount > 0 ? Math.round((1 - (teamData.analytics.uptime.autoDeadCount / teamData.analytics.matchCount)) * 100) : 0}%</div>
-                          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Auto Uptime</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 mt-1">Auto Uptime</div>
                           {teamData.analytics.matchCount > 0 && (
-                            <div className="text-[10px] text-muted-foreground/80 font-medium">Rank {autoUptimeRank} of {totalAutoRanks}</div>
+                            <div className="text-[10px] text-muted-foreground/80 font-medium whitespace-nowrap">Rank {autoUptimeRank} of {totalAutoRanks}</div>
                           )}
                         </div>
-                        <div className="bg-muted/50 p-3 rounded-md flex flex-col justify-center">
+                        {teamData.analytics.autoMovedPercentage !== undefined && (
+                          <div className="bg-muted/50 px-5 py-4 rounded-md flex flex-col justify-center">
+                            <div className="text-2xl font-bold">{Math.round(teamData.analytics.autoMovedPercentage)}%</div>
+                            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 mt-1">Auto Moved</div>
+                            {teamData.analytics.matchCount > 0 && autoMovedRank > 0 && (
+                              <div className="text-[10px] text-muted-foreground/80 font-medium whitespace-nowrap">Rank {autoMovedRank} of {totalAutoMovedRanks}</div>
+                            )}
+                          </div>
+                        )}
+                        <div className="bg-muted/50 px-5 py-4 rounded-md flex flex-col justify-center">
                           <div className="text-2xl font-bold">{teamData.analytics.matchCount > 0 ? Math.round((1 - (teamData.analytics.uptime.teleopDeadCount / teamData.analytics.matchCount)) * 100) : 0}%</div>
-                          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Teleop Uptime</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 mt-1">Teleop Uptime</div>
                           {teamData.analytics.matchCount > 0 && (
-                            <div className="text-[10px] text-muted-foreground/80 font-medium">Rank {teleopUptimeRank} of {totalTeleopRanks}</div>
+                            <div className="text-[10px] text-muted-foreground/80 font-medium whitespace-nowrap">Rank {teleopUptimeRank} of {totalTeleopRanks}</div>
                           )}
                         </div>
                       </div>
@@ -303,7 +321,7 @@ export default function TeamViewerClient({
                       
                       {gameConfig.matchScout?.AnalyticsViewerComponent && (
                         <div className="pt-4 border-t">
-                          <gameConfig.matchScout.AnalyticsViewerComponent data={teamData.analytics} allTeamsData={initialTeams} />
+                          <gameConfig.matchScout.AnalyticsViewerComponent data={teamData.analytics} allTeamsData={initialTeams} context="team-viewer" />
                         </div>
                       )}
                     </CardContent>

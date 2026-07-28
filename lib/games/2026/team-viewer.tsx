@@ -92,7 +92,7 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
 );
 
 
-export const AnalyticsViewerComponent = ({ data, allTeamsData }: { data: AnalyticsData2026, allTeamsData?: any[] }) => {
+export const AnalyticsViewerComponent = ({ data, allTeamsData, context }: { data: AnalyticsData2026, allTeamsData?: any[], context?: string }) => {
   if (!data) return null;
   
   const getValues = (key: string) => allTeamsData?.map(t => t.analytics?.[key]).filter(v => typeof v === 'number') as number[];
@@ -101,14 +101,45 @@ export const AnalyticsViewerComponent = ({ data, allTeamsData }: { data: Analyti
     <div className="space-y-6">
       <div className="space-y-2">
         <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Fuel Scored</h4>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 mt-4">
           <StatWithRank label="Auto" value={data.avgAutoFuelScored} allValues={getValues('avgAutoFuelScored')} />
           <StatWithRank label="Teleop" value={data.avgTeleopFuelScored} allValues={getValues('avgTeleopFuelScored')} />
           <StatWithRank label="Overall" value={data.avgOverallFuelScored} allValues={getValues('avgOverallFuelScored')} />
         </div>
       </div>
 
-
+      {context === 'pre-match' && (
+        <div className="space-y-2">
+          <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Performance</h4>
+          <div className="grid grid-cols-4 gap-4 mt-4">
+            <StatWithRank 
+              label="Major Fouls" 
+              value={data.fouls?.major} 
+              fractionDigits={0}
+              allValues={allTeamsData?.map(t => t.analytics?.fouls?.major).filter(v => typeof v === 'number') as number[]}
+            />
+            <StatWithRank 
+              label="Minor Fouls" 
+              value={data.fouls?.minor} 
+              fractionDigits={0}
+              allValues={allTeamsData?.map(t => t.analytics?.fouls?.minor).filter(v => typeof v === 'number') as number[]}
+            />
+            <StatWithRank 
+              label="Yellow Cards" 
+              value={data.fouls?.yellowCards} 
+              fractionDigits={0}
+              allValues={allTeamsData?.map(t => t.analytics?.fouls?.yellowCards).filter(v => typeof v === 'number') as number[]}
+            />
+            <StatWithRank 
+              label="Auto Moved" 
+              value={data.autoMovedPercentage} 
+              fractionDigits={0}
+              suffix="%"
+              allValues={getValues('autoMovedPercentage')}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

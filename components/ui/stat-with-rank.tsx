@@ -5,9 +5,10 @@ export interface StatWithRankProps {
   value: number | undefined;
   allValues?: number[];
   fractionDigits?: number;
+  suffix?: string;
 }
 
-export function StatWithRank({ label, value, allValues = [], fractionDigits = 1 }: StatWithRankProps) {
+export function StatWithRank({ label, value, allValues = [], fractionDigits = 1, suffix = '' }: StatWithRankProps) {
   const displayValue = value !== undefined ? value.toFixed(fractionDigits) : 'N/A';
   
   let rankDisplay = null;
@@ -18,13 +19,13 @@ export function StatWithRank({ label, value, allValues = [], fractionDigits = 1 
     const totalRanks = uniqueValues.length;
     
     if (rank > 0) {
-      rankDisplay = <div className="text-[10px] text-muted-foreground/80 font-medium">Rank {rank} of {totalRanks}</div>;
+      rankDisplay = <div className="text-[10px] text-muted-foreground/80 font-medium whitespace-nowrap">Rank {rank} of {totalRanks}</div>;
     }
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-muted rounded-lg text-center h-full">
-      <div className="text-2xl font-bold">{displayValue}</div>
+    <div className="flex flex-col items-center justify-center px-6 py-5 bg-muted rounded-lg text-center h-full">
+      <div className="text-2xl font-bold">{displayValue}{value !== undefined ? suffix : ''}</div>
       <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{label}</div>
       {rankDisplay}
     </div>

@@ -181,14 +181,14 @@ export function BaseTeamCard({ teamNum, teamData, allTeams, onTeamChange, allian
                         <ChartBarIcon className="size-4 mr-1" /> Detailed Stats
                       </Button>
                     } />
-                    <DialogContent className="max-w-4xl">
+                    <DialogContent className="max-w-6xl w-[95vw]">
                       <DialogHeader>
                         <DialogTitle>Team {teamNum} Detailed Stats</DialogTitle>
                       </DialogHeader>
                       <div className="max-h-[70vh] overflow-y-auto pt-4">
                         {analytics ? (
                           gameConfig?.matchScout?.AnalyticsViewerComponent ? (
-                            <gameConfig.matchScout.AnalyticsViewerComponent data={analytics} allTeamsData={Object.values(allTeams)} />
+                            <gameConfig.matchScout.AnalyticsViewerComponent data={analytics} allTeamsData={Object.values(allTeams)} context="pre-match" />
                           ) : (
                             <div className="text-muted-foreground text-center py-4">No detailed stats viewer defined for this year.</div>
                           )
