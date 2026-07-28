@@ -44,7 +44,7 @@ export default function StandingsClient({
 
   const chartData = useMemo(() => {
     if (!standingsConfig) return [];
-    return standingsConfig.calculateStandings(initialTeams);
+    return [...standingsConfig.calculateStandings(initialTeams)].reverse();
   }, [initialTeams, standingsConfig]);
 
   if (!eventToUse) {
