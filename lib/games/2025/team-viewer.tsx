@@ -1,7 +1,10 @@
+'use client';
+
 import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
 import { StatWithRank } from '@/components/ui/stat-with-rank';
-import { robotSchema, capabilitiesSchema, analyticsSchema } from './schemas';
+import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
+import { analyticsSchema } from './match-scout/schema';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => null;
 

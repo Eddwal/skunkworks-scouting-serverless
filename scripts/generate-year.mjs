@@ -27,12 +27,10 @@ async function generateYear() {
     await fs.mkdir(path.join(baseDir, 'pit-scout'), { recursive: true });
     await fs.mkdir(path.join(baseDir, 'match-scout'), { recursive: true });
     
-    // 1. Create schemas.ts
-    const schemasContent = `import { z } from 'zod';
+    // 1. Create pit-scout/schema.ts
+    const pitScoutSchemaContent = `import { z } from 'zod';
 import { capRowSchema, baseRobotSchema, baseCapabilitiesSchema } from '@/components/pit-scouting/schemas';
-import { baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
 
-// Pit Scout Schemas
 export const robotSchema = baseRobotSchema.extend({
   // Add year specific robot fields here
   // exampleField: z.coerce.number().min(0),
@@ -42,8 +40,13 @@ export const capabilitiesSchema = baseCapabilitiesSchema.extend({
   // Add year specific capabilities fields here
   // exampleCapability: capRowSchema.default({ can: false, auto: false }),
 });
+`;
+    await fs.writeFile(path.join(baseDir, 'pit-scout', 'schema.ts'), pitScoutSchemaContent);
 
-// Match Scout Schemas
+    // 1b. Create match-scout/schema.ts
+    const matchScoutSchemaContent = `import { z } from 'zod';
+import { baseAutoSchema, baseTeleopSchema, baseEndgameSchema, baseMatchSetupSchema } from '@/components/match-scouting/schemas';
+
 export const autoSchema = baseAutoSchema.extend({
   // Add year specific auto fields here
 });
@@ -62,9 +65,16 @@ export const analyticsSchema = z.object({
 
 import { baseAnalyticsSchema } from '@/lib/firebase/converters';
 
+export type MatchData${year} = {
+  matchSetup: z.infer<typeof baseMatchSetupSchema>;
+  auto: z.infer<typeof autoSchema>;
+  teleop: z.infer<typeof teleopSchema>;
+  endgame: z.infer<typeof endgameSchema>;
+};
+
 export type AnalyticsData${year} = z.infer<typeof baseAnalyticsSchema> & z.infer<typeof analyticsSchema>;
 `;
-    await fs.writeFile(path.join(baseDir, 'schemas.ts'), schemasContent);
+    await fs.writeFile(path.join(baseDir, 'match-scout', 'schema.ts'), matchScoutSchemaContent);
 
     // 2. Create pit-scout/robot.tsx
     const robotContent = `import { Controller } from 'react-hook-form';
@@ -151,7 +161,8 @@ export function MatchScoutEndgame(props: FormComponentProps) {
     // 4. Create team-viewer.tsx
     const teamViewerContent = `import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
-import { robotSchema, capabilitiesSchema } from './schemas';
+import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
+import { analyticsSchema } from './match-scout/schema';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => null;
 
@@ -193,7 +204,7 @@ export function calculateMatchPoints(matchData: any) {
 
     // 6. Create standings.ts
     const standingsContent = `import { TeamData } from '@/lib/firebase/converters';
-import { AnalyticsData${year} } from './schemas';
+import { AnalyticsData${year} } from './match-scout/schema';
 
 export const calculateStandings = (teams: (TeamData & { id: string })[]) => {
   return teams.map(team => {
@@ -241,7 +252,7 @@ export function Year${year}Stats({ teamData, allTeams }: { teamData?: TeamData; 
     await fs.writeFile(path.join(baseDir, 'pre-match', 'stats.tsx'), preMatchStatsContent);
 
     const preMatchCapabilitiesContent = `import { z } from "zod"
-import { capabilitiesSchema } from "../schemas"
+import { capabilitiesSchema } from "../pit-scout/schema"
 
 export function Year${year}CapabilitiesBadge({ capabilities }: { capabilities?: z.infer<typeof capabilitiesSchema> }) {
   if (!capabilities) return null;
@@ -256,7 +267,8 @@ export function Year${year}CapabilitiesBadge({ capabilities }: { capabilities?: 
 
     // 8. Create index.ts
     const indexContent = `import { GameConfig } from '../types';
-import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema, analyticsSchema, AnalyticsData${year} } from './schemas';
+import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
+import { autoSchema, teleopSchema, endgameSchema, analyticsSchema, AnalyticsData${year} } from './match-scout/schema';
 import { PitScoutRobot } from './pit-scout/robot';
 import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';

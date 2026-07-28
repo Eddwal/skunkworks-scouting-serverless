@@ -26,8 +26,8 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-// Force the use of the emulator
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
+// We are NOT using the emulator. This will write to PRODUCTION.
+console.warn("⚠️ WARNING: SEEDING TO PRODUCTION FIRESTORE! ⚠️");
 
 initializeApp({
   projectId: projectId,
@@ -184,7 +184,7 @@ async function seedReefscape() {
     console.log(`Seeded team data for ${teamId}`);
   }
   
-  console.log('Successfully seeded Reefscape demo data to the local Firestore emulator!');
+  console.log('Successfully seeded Reefscape demo data to PRODUCTION!');
 }
 
 seedReefscape().catch(console.error);

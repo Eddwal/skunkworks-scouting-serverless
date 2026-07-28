@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/use-auth"
 import { AuthGuard } from "@/components/auth-guard"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 const spaceGroteskHeading = Space_Grotesk({subsets:['latin'],variable:'--font-heading'});
 
@@ -51,12 +52,14 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <FirebaseSWProvider>
-            <AuthProvider>
-              <AuthGuard>{children}</AuthGuard>
-            </AuthProvider>
-          </FirebaseSWProvider>
-          <Toaster />
+          <TooltipProvider>
+            <FirebaseSWProvider>
+              <AuthProvider>
+                <AuthGuard>{children}</AuthGuard>
+              </AuthProvider>
+            </FirebaseSWProvider>
+            <Toaster />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

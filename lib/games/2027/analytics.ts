@@ -1,3 +1,5 @@
+import { autoSchema, teleopSchema, endgameSchema, MatchData2027, AnalyticsData2027 } from './match-scout/schema';
+
 export function processAnalytics(currentAnalytics: any, matchData: any) {
   // Add your year-specific analytics logic here!
   // currentAnalytics contains the base metrics (matchCount, fouls, uptime).

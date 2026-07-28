@@ -6,9 +6,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { QRScanner } from '@/components/ui/qr-scanner';
 import { Camera } from 'lucide-react';
 import { toast } from 'sonner';
-import { uploadMatchScoutData } from './upload-action';
+import { uploadMatchScoutData } from '@/app/actions/upload-action';
+import { useAuth } from '@/hooks/use-auth';
 
 export function ScanQR() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -21,8 +23,9 @@ export function ScanQR() {
         throw new Error("Invalid QR code data format");
       }
       
-      await uploadMatchScoutData(data);
-      toast.success(`Successfully uploaded match ${data.matchSetup.matchKey} for team ${data.teamId.replace('frc', '')}`);
+      const token = user ? await user.getIdToken() : undefined;
+      await uploadMatchScoutData(data, token);
+      toast.success(`Successfully uploaded match ${data.matchSetup.matchKey} for team ${data.teamId}`);
       setOpen(false);
     } catch (err: any) {
       toast.error(`Error uploading data: ${err.message}`);

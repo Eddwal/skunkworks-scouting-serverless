@@ -8,7 +8,6 @@ import { getFirestore } from 'firebase-admin/firestore';
 const TBA_BASE_URL = 'https://www.thebluealliance.com/api/v3';
 
 export async function importTbaEvent(eventKey: string, clientToken?: string) {
-  console.log("=== ACTION STARTED ===", eventKey);
   const headersList = await headers();
   const token = clientToken || headersList.get('Authorization')?.split('Bearer ')[1];
   if (!token) throw new Error("Unauthorized");
@@ -17,7 +16,7 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
   try {
     decodedToken = await adminAuth.verifyIdToken(token);
   } catch (err: any) {
-    throw new Error(`Auth verification failed: ${err.message}. Are you running the Firebase Emulator?`);
+    throw new Error(`Auth verification failed: ${err.message}. Are you running the Firebase Emulator?`); // I wonder why I needed to add this in... ;)
   }
   if (!decodedToken.admin) throw new Error("Forbidden: Only users with admin claim may update events");
 
@@ -56,8 +55,8 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
 
   const uniqueTeams = new Set<string>();
   matchesData.forEach((match: any) => {
-    match.alliances.red.team_keys.forEach((team: string) => uniqueTeams.add(team));
-    match.alliances.blue.team_keys.forEach((team: string) => uniqueTeams.add(team));
+    match.alliances.red.team_keys.forEach((team: string) => uniqueTeams.add(team.replace('frc', '')));
+    match.alliances.blue.team_keys.forEach((team: string) => uniqueTeams.add(team.replace('frc', '')));
   });
   const teams = Array.from(uniqueTeams);
 
@@ -70,7 +69,7 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
     teams: teams,
     importedAt: new Date().toISOString(),
     importedBy: decodedToken.uid,
-  });
+  }, { merge: true });
 
   matchesData.forEach((match: any) => {
     const matchRef = eventRef.collection('matches').doc(match.key);
@@ -81,9 +80,9 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
       matchNumber: match.match_number,
       setNumber: match.set_number,
       time: match.time, // Unix timestamp
-      redTeams: match.alliances.red.team_keys,
-      blueTeams: match.alliances.blue.team_keys,
-    });
+      redTeams: match.alliances.red.team_keys.map((t: string) => t.replace('frc', '')),
+      blueTeams: match.alliances.blue.team_keys.map((t: string) => t.replace('frc', '')),
+    }, { merge: true });
   });
 
   try {

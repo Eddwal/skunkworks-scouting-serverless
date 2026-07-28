@@ -1,8 +1,12 @@
+'use client';
+
 import { Controller } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MatchSelect } from '@/components/ui/match-select';
+import { formatMatchName } from '@/lib/utils';
 import { ScoutingEvent } from '@/hooks/use-event';
 
 interface SetupStepProps {
@@ -33,18 +37,13 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams, s
           name="matchSetup.matchKey"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value || ""} disabled={!watchEventId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a match" />
-              </SelectTrigger>
-              <SelectContent>
-                {matches.map(match => (
-                  <SelectItem key={match.id} value={match.matchKey}>
-                    {match.matchKey}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MatchSelect
+              matches={matches}
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={!watchEventId}
+              valueKey="matchKey"
+            />
           )}
         />
         {errors.matchSetup?.matchKey && <p className="text-sm text-destructive">{errors.matchSetup.matchKey.message as string}</p>}
@@ -63,8 +62,7 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams, s
               <SelectContent>
                 {scheduledTeams.length > 0 ? (
                   scheduledTeams.map(team => {
-                    const teamNum = team.replace(/^frc/, '');
-                    return <SelectItem key={team} value={teamNum}>{teamNum}</SelectItem>;
+                    return <SelectItem key={team} value={team}>{team}</SelectItem>;
                   })
                 ) : (
                   <div className="p-2 text-sm text-muted-foreground">Select a match first</div>
@@ -100,8 +98,7 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams, s
                 </SelectTrigger>
                 <SelectContent>
                   {teams.map(team => {
-                    const teamNum = team.replace(/^frc/, '');
-                    return <SelectItem key={team} value={teamNum}>{teamNum}</SelectItem>;
+                    return <SelectItem key={team} value={team}>{team}</SelectItem>;
                   })}
                 </SelectContent>
               </Select>

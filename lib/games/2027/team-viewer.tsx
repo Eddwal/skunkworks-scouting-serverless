@@ -1,6 +1,8 @@
+'use client';
+
 import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
-import { robotSchema, capabilitiesSchema } from './schemas';
+import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => null;
 

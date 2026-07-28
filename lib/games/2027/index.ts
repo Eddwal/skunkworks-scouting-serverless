@@ -1,5 +1,6 @@
 import { GameConfig } from '../types';
-import { robotSchema, capabilitiesSchema, autoSchema, teleopSchema, endgameSchema, analyticsSchema, AnalyticsData2027 } from './schemas';
+import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
+import { autoSchema, teleopSchema, endgameSchema, analyticsSchema, AnalyticsData2027 } from './match-scout/schema';
 import { PitScoutRobot } from './pit-scout/robot';
 import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';

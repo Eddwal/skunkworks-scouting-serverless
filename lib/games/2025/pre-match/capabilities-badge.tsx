@@ -1,5 +1,7 @@
+'use client';
+
 import { z } from "zod"
-import { capabilitiesSchema } from "../schemas"
+import { capabilitiesSchema } from "../pit-scout/schema"
 import { CapabilityBadge } from "@/components/ui/capability-badge"
 
 export function ReefscapeCapabilitiesBadge({ capabilities }: { capabilities?: z.infer<typeof capabilitiesSchema> }) {

@@ -1,8 +1,12 @@
+'use client';
+
 import { ReactNode } from 'react';
 import { Controller } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Stepper } from '@/components/ui/stepper';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { HelpCircle } from 'lucide-react';
 import { FormComponentProps } from '@/lib/games/types';
 
 interface BaseTeleopFormProps extends FormComponentProps {
@@ -40,13 +44,24 @@ export function BaseTeleopForm({ control, children }: BaseTeleopFormProps) {
 
       <div className="flex items-center space-x-2 pt-4">
         <Controller
-          name="teleop.deadInTheWater"
+          name="teleop.died"
           control={control}
+          defaultValue={false}
           render={({ field }) => (
-            <Checkbox id="teleop-dead" checked={!!field.value} onCheckedChange={field.onChange} />
+            <Checkbox id="teleop-dead" checked={field.value === true} onCheckedChange={(c) => field.onChange(c === true)} />
           )}
         />
-        <Label htmlFor="teleop-dead">Dead in the Water (Teleop)</Label>
+        <Label htmlFor="teleop-dead" className="flex items-center gap-1">
+          Died
+          <Tooltip>
+            <TooltipTrigger>
+              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Moving then died</p>
+            </TooltipContent>
+          </Tooltip>
+        </Label>
       </div>
     </div>
   );

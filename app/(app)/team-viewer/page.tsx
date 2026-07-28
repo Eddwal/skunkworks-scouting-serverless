@@ -1,3 +1,4 @@
+import 'server-only';
 import { Suspense } from 'react';
 import TeamViewerClient from './team-viewer-client';
 import { adminDb } from '@/lib/firebase/firebase-admin';
@@ -13,7 +14,7 @@ const getCachedTeams = unstable_cache(
     })) as (TeamData & { id: string })[];
     
     // Sort numerically
-    fetchedTeams.sort((a, b) => parseInt(a.id.replace('frc', '')) - parseInt(b.id.replace('frc', '')));
+    fetchedTeams.sort((a, b) => parseInt(a.id) - parseInt(b.id));
     return fetchedTeams;
   },
   ['teams-for-event'],

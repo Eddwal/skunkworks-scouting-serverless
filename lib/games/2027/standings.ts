@@ -1,5 +1,5 @@
 import { TeamData } from '@/lib/firebase/converters';
-import { AnalyticsData2027 } from './schemas';
+import { AnalyticsData2027 } from './match-scout/schema';
 
 export const calculateStandings = (teams: (TeamData & { id: string })[]) => {
   return teams.map(team => {

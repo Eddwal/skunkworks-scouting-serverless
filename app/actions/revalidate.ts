@@ -1,23 +1,16 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
-export async function revalidateTeamViewer() {
+export async function revalidateDashboards() {
   try {
     revalidatePath('/team-viewer');
-  } catch (error) {
-    console.error('Failed to revalidate team-viewer cache:', error);
-  }
-}
-
-import { revalidateTag } from 'next/cache';
-
-export async function revalidateStandings() {
-  try {
-    // @ts-ignore - Next.js 14 typings sometimes expect 2 arguments
-    revalidateTag('standings');
     revalidatePath('/standings');
+    revalidatePath('/pre-match-dashboard');
+    revalidateTag('standings', 'max');
+    revalidateTag('events', 'max');
   } catch (error) {
-    console.error('Failed to revalidate standings cache:', error);
+    console.error('Failed to revalidate dashboard caches:', error);
   }
 }
+

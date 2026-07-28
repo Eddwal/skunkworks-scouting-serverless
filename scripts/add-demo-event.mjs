@@ -62,10 +62,11 @@ async function addDemoEvent() {
   await eventDocRef.set({
     id: eventId,
     name: eventName,
-    teams: ['frc1983', 'frc254', 'frc2910', 'frc2046', 'frc1318', 'frc4911'],
+    teams: ['1983', '254', '2910', '2046', '1318', '4911'],
     city: 'Seattle',
     startDate: `${year}-03-01`,
-    endDate: `${year}-03-03`
+    endDate: `${year}-03-03`,
+    game: year
   });
   
   console.log(`Added event ${eventId} ("${eventName}") for year ${year}`);
@@ -80,8 +81,8 @@ async function addDemoEvent() {
       matchNumber: 1,
       setNumber: 1,
       time: Math.floor(Date.now() / 1000) + 3600,
-      redTeams: ['frc1983', 'frc254', 'frc2910'],
-      blueTeams: ['frc2046', 'frc1318', 'frc4911']
+      redTeams: ['1983', '254', '2910'],
+      blueTeams: ['2046', '1318', '4911']
     },
     {
       id: `${eventId}_qm2`,
@@ -90,8 +91,8 @@ async function addDemoEvent() {
       matchNumber: 2,
       setNumber: 1,
       time: Math.floor(Date.now() / 1000) + 7200,
-      redTeams: ['frc2910', 'frc2046', 'frc1318'],
-      blueTeams: ['frc1983', 'frc254', 'frc4911']
+      redTeams: ['2910', '2046', '1318'],
+      blueTeams: ['1983', '254', '4911']
     },
     {
       id: `${eventId}_qm3`,
@@ -100,8 +101,8 @@ async function addDemoEvent() {
       matchNumber: 3,
       setNumber: 1,
       time: Math.floor(Date.now() / 1000) + 10800,
-      redTeams: ['frc2046', 'frc1318', 'frc1983'],
-      blueTeams: ['frc2910', 'frc254', 'frc4911']
+      redTeams: ['2046', '1318', '1983'],
+      blueTeams: ['2910', '254', '4911']
     }
   ];
   

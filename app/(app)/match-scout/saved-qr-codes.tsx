@@ -6,9 +6,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { QRCodeSVG } from 'qrcode.react';
 import { Trash, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
-import { uploadMatchScoutData } from './upload-action';
+import { uploadMatchScoutData } from '@/app/actions/upload-action';
+import { useAuth } from '@/hooks/use-auth';
 
 export function SavedQRCodes() {
+  const { user } = useAuth();
   const [savedCodes, setSavedCodes] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -51,7 +53,8 @@ export function SavedQRCodes() {
       for (const code of savedCodes) {
         try {
           const data = JSON.parse(code.data);
-          await uploadMatchScoutData(data);
+          const token = user ? await user.getIdToken() : undefined;
+          await uploadMatchScoutData(data, token);
           // Remove from list after successful upload
           currentCodes = currentCodes.filter(c => c.id !== code.id);
           localStorage.setItem('matchScoutQRCodes', JSON.stringify(currentCodes));
@@ -104,7 +107,7 @@ export function SavedQRCodes() {
           {savedCodes.map((code) => (
             <div key={code.id} className="border p-4 rounded-lg flex flex-col items-center gap-4">
               <div className="flex justify-between w-full items-center">
-                <div className="font-bold">{code.matchKey} - Team {code.teamId.replace('frc', '')}</div>
+                <div className="font-bold">{code.matchKey} - Team {code.teamId}</div>
                 {deletingId === code.id ? (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground">Are you sure?</span>

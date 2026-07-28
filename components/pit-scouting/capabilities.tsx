@@ -1,3 +1,5 @@
+'use client';
+
 import { Controller } from 'react-hook-form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';

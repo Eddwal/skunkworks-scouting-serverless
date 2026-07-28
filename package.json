@@ -12,7 +12,8 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "generate-year": "node scripts/generate-year.mjs",
-    "seed-demo-event": "node scripts/add-demo-event.mjs"
+    "seed-demo-event": "node scripts/add-demo-event.mjs",
+    "seed-2026": "node scripts/seed-2026.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

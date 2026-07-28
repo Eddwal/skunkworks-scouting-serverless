@@ -1,3 +1,5 @@
+'use client';
+
 import { Controller } from 'react-hook-form';
 import { FormComponentProps } from '../../types';
 import { BaseEndgameForm } from '@/components/match-scouting/base-endgame-form';

@@ -1,7 +1,13 @@
+'use client';
+
 import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
 import { StatWithRank } from '@/components/ui/stat-with-rank';
-import { robotSchema, capabilitiesSchema, analyticsSchema } from './schemas';
+import { Label, PolarGrid, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
+import { analyticsSchema } from './match-scout/schema';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => (
   <div className="pt-4 border-t">
@@ -87,6 +93,90 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
     </div>
 );
 
+const GaugeChart = ({ title, value, color }: { title: string, value: number, color: string }) => {
+  const chartData = [
+    { name: "value", value: value, remainder: 100 - value }
+  ]
+  
+  const chartConfig = {
+    value: {
+      label: title,
+      color: color,
+    },
+    remainder: {
+      label: "Remaining",
+      color: "hsl(var(--muted))",
+    }
+  } satisfies ChartConfig
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="items-center pb-0">
+        <CardTitle className="text-sm font-semibold text-center">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-1 items-center pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square w-full max-w-[200px]"
+        >
+          <RadialBarChart
+            data={chartData}
+            startAngle={180}
+            endAngle={0}
+            innerRadius={60}
+            outerRadius={90}
+          >
+            <RadialBar
+              dataKey="value"
+              fill="var(--color-value)"
+              stackId="a"
+              cornerRadius={5}
+              className="stroke-transparent stroke-2"
+            />
+            <RadialBar
+              dataKey="remainder"
+              stackId="a"
+              cornerRadius={5}
+              fill="var(--color-remainder)"
+              className="stroke-transparent stroke-2"
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) - 16}
+                          className="fill-foreground text-2xl font-bold"
+                        >
+                          {Math.round(value)}%
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 4}
+                          className="fill-muted-foreground text-xs"
+                        >
+                          {title}
+                        </tspan>
+                      </text>
+                    )
+                  }
+                }}
+              />
+            </PolarRadiusAxis>
+          </RadialBarChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  )
+}
+
 export const AnalyticsViewerComponent = ({ data, allTeamsData }: { data: z.infer<typeof analyticsSchema>, allTeamsData?: any[] }) => {
   if (!data) return null;
   
@@ -100,6 +190,14 @@ export const AnalyticsViewerComponent = ({ data, allTeamsData }: { data: z.infer
           <StatWithRank label="Auto" value={data.avgAutoFuelScored} allValues={getValues('avgAutoFuelScored')} />
           <StatWithRank label="Teleop" value={data.avgTeleopFuelScored} allValues={getValues('avgTeleopFuelScored')} />
           <StatWithRank label="Overall" value={data.avgOverallFuelScored} allValues={getValues('avgOverallFuelScored')} />
+        </div>
+      </div>
+
+      <div className="space-y-2 pt-2">
+        <h4 className="font-semibold text-primary pb-1 border-b-2 border-primary/20 px-1">Auto Performance</h4>
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          <GaugeChart title="Auto Moved" value={data.autoMovedPercentage || 0} color="hsl(var(--chart-2))" />
+          <GaugeChart title="Auto Died" value={data.autoDiedPercentage || 0} color="hsl(var(--destructive))" />
         </div>
       </div>
     </div>

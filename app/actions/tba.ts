@@ -37,15 +37,15 @@ export async function fetchEventTeamsFromTba(eventKey: string, clientToken?: str
   const batch = db.batch();
   
   teamsData.forEach((team: any) => {
-    // Keep 'frc' prefix for consistency with match scouting and pit scouting
-    const teamRef = db.collection('events').doc(eventKey).collection('teams').doc(team.key);
+    const teamNumber = team.key.replace('frc', '');
+    const teamRef = db.collection('events').doc(eventKey).collection('teams').doc(teamNumber);
     
     // Merge true so we don't overwrite existing scouting data
     batch.set(teamRef, {
       name: team.name,
       nickname: team.nickname,
       eventId: eventKey,
-      teamId: team.key,
+      teamId: teamNumber,
       year: eventKey.substring(0, 4)
     }, { merge: true });
   });

@@ -1,3 +1,4 @@
+import 'server-only';
 import { EventProvider, ScoutingEvent } from '@/hooks/use-event';
 import { GlobalNav } from '@/components/global-nav';
 import { Suspense } from 'react';
@@ -21,7 +22,7 @@ const getCachedEvents = unstable_cache(
     });
   },
   ['all-events'],
-  { tags: ['events'] }
+  { tags: ['events'], revalidate: 300 }
 );
 
 export default async function AppLayout({
@@ -34,7 +35,6 @@ export default async function AppLayout({
     initialEvents = await getCachedEvents() as ScoutingEvent[];
   } catch (error) {
     console.error('Error fetching events on server:', error);
-    // If it's a permission denied error, we could redirect to login
   }
 
   return (

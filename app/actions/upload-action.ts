@@ -1,9 +1,20 @@
-import { db } from '@/lib/firebase/firebase-client';
-import { doc, runTransaction } from 'firebase/firestore';
+'use server';
+
+import 'server-only';
+import { adminDb, adminAuth } from '@/lib/firebase/firebase-admin';
 import { getGameConfig } from '@/lib/games';
 import { MatchData } from '@/lib/firebase/converters';
 
-export async function uploadMatchScoutData(data: MatchData) {
+export async function uploadMatchScoutData(data: MatchData, clientToken?: string) {
+  if (!clientToken) {
+    throw new Error("Unauthorized: Missing auth token");
+  }
+
+  try {
+    await adminAuth.verifyIdToken(clientToken);
+  } catch (err: any) {
+    throw new Error(`Auth verification failed: ${err.message}`);
+  }
   const eventId = data.eventId;
   const dbTeamId = data.teamId;
   const year = data.year;
@@ -17,10 +28,10 @@ export async function uploadMatchScoutData(data: MatchData) {
     throw new Error("Missing matchKey in matchSetup");
   }
 
-  const fullMatchDocRef = doc(db, 'events', eventId, 'matches', matchKey);
-  const teamDocRef = doc(db, 'events', eventId, 'teams', dbTeamId);
+  const fullMatchDocRef = adminDb.collection('events').doc(eventId).collection('matches').doc(matchKey);
+  const teamDocRef = adminDb.collection('events').doc(eventId).collection('teams').doc(dbTeamId);
   
-  await runTransaction(db, async (transaction) => {
+  await adminDb.runTransaction(async (transaction) => {
     // Reads must happen before writes
     const teamDoc = await transaction.get(teamDocRef);
     const currentData = teamDoc.data() || {};
@@ -48,8 +59,8 @@ export async function uploadMatchScoutData(data: MatchData) {
 
     analytics.matchCount += 1;
 
-    const autoDead = data.auto?.deadInTheWater === true;
-    const teleopDead = data.teleop?.deadInTheWater === true;
+    const autoDead = data.auto?.died === true;
+    const teleopDead = data.teleop?.died === true;
     if (autoDead) analytics.uptime.autoDeadCount += 1;
     if (teleopDead) analytics.uptime.teleopDeadCount += 1;
 
@@ -79,7 +90,7 @@ export async function uploadMatchScoutData(data: MatchData) {
       finalAnalytics = gameConfig.matchScout.processAnalytics(finalAnalytics, data);
     }
     
-    // Compute and append match points
+    // Compute and append match points (for scoring over time chart)
     if (gameConfig.calculateMatchPoints) {
       if (!finalAnalytics.matchHistory) {
         finalAnalytics.matchHistory = [];
@@ -98,9 +109,8 @@ export async function uploadMatchScoutData(data: MatchData) {
   
   // Trigger cache invalidation for the Team Viewer and Standings dashboard
   try {
-    const { revalidateTeamViewer, revalidateStandings } = await import('@/app/actions/revalidate');
-    await revalidateTeamViewer();
-    await revalidateStandings();
+    const { revalidateDashboards } = await import('@/app/actions/revalidate');
+    await revalidateDashboards();
   } catch (error) {
     console.error('Failed to trigger revalidation:', error);
   }

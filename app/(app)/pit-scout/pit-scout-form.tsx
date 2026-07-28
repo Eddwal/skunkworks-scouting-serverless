@@ -85,7 +85,7 @@ function PitScoutFormContent() {
     
     setIsSubmitting(true);
     try {
-      const dbTeamId = data.teamId.startsWith('frc') ? data.teamId : `frc${data.teamId}`;
+      const dbTeamId = data.teamId;
       let uploadedPhotoUrl = data.photoUrl;
 
       if (photoFile) {
@@ -106,8 +106,8 @@ function PitScoutFormContent() {
       }, { merge: true });
       
       try {
-        const { revalidateTeamViewer } = await import('@/app/actions/revalidate');
-        await revalidateTeamViewer();
+        const { revalidateDashboards } = await import('@/app/actions/revalidate');
+        await revalidateDashboards();
       } catch (error) {
         console.error('Failed to trigger revalidation:', error);
       }
@@ -135,7 +135,7 @@ function PitScoutFormContent() {
         {step > 1 && watchTeamId && (
           <CardAction>
             <Badge variant="default" className="text-sm px-4 py-1">
-              Team {watchTeamId.replace('frc', '')}
+              Team {watchTeamId}
             </Badge>
           </CardAction>
         )}

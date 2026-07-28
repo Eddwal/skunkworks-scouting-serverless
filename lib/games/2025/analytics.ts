@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { autoSchema, teleopSchema, endgameSchema, MatchData2025, AnalyticsData2025 } from './schemas';
+import { autoSchema, teleopSchema, endgameSchema, MatchData2025, AnalyticsData2025 } from './match-scout/schema';
 import { baseMatchSetupSchema } from '@/components/match-scouting/schemas';
 import { TeamData } from '@/lib/firebase/converters';
 

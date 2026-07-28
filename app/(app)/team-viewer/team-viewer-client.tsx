@@ -100,13 +100,13 @@ export default function TeamViewerClient({
             <Select value={selectedTeam} onValueChange={(val) => { if (val) handleTeamChange(val); }}>
               <SelectTrigger>
                 <span data-slot="select-value" className="flex flex-1 text-left">
-                  {selectedTeam ? selectedTeam.replace('frc', '') : 'Select a Team'}
+                  {selectedTeam ? selectedTeam : 'Select a Team'}
                 </span>
               </SelectTrigger>
               <SelectContent>
                 {initialTeams.map(team => (
                   <SelectItem key={team.id} value={team.id}>
-                    {team.id.replace('frc', '')}
+                    {team.id}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -116,10 +116,10 @@ export default function TeamViewerClient({
 
         {teamData && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="shrink-0" nativeButton={false} render={<a href={`https://www.thebluealliance.com/team/${selectedTeam.replace('frc', '')}`} target="_blank" rel="noreferrer" />}>
+            <Button variant="outline" size="sm" className="shrink-0" nativeButton={false} render={<a href={`https://www.thebluealliance.com/team/${selectedTeam}`} target="_blank" rel="noreferrer" />}>
               TBA <ArrowSquareOutIcon className="ml-1.5 size-3.5" />
             </Button>
-            <Button variant="outline" size="sm" className="shrink-0" nativeButton={false} render={<a href={`https://statbotics.io/team/${selectedTeam.replace('frc', '')}`} target="_blank" rel="noreferrer" />}>
+            <Button variant="outline" size="sm" className="shrink-0" nativeButton={false} render={<a href={`https://statbotics.io/team/${selectedTeam}`} target="_blank" rel="noreferrer" />}>
               Statbotics <ArrowSquareOutIcon className="ml-1.5 size-3.5" />
             </Button>
           </div>
@@ -214,7 +214,7 @@ export default function TeamViewerClient({
                       }} className="h-full w-full">
                         <LineChart data={teamData.analytics.matchHistory} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                          <XAxis dataKey="matchKey" tickLine={false} axisLine={false} tickMargin={10} style={{ fontSize: '12px' }} />
+                          <XAxis dataKey="matchKey" tick={false} tickLine={false} axisLine={false} tickMargin={10} />
                           <YAxis tickLine={false} axisLine={false} style={{ fontSize: '12px' }} />
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <ChartLegend content={<ChartLegendContent />} />

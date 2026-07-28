@@ -70,7 +70,7 @@ export default function StandingsClient({
   const formatYAxis = (teamId: string) => {
     const team = chartData.find(d => d.teamId === teamId);
     if (!team) return teamId;
-    return `${team.rank}. ${team.teamId.replace('frc', '')}`;
+    return `${team.rank}. ${team.teamId}`;
   };
 
   const chartHeight = Math.max(400, chartData.length * 40 + 100);

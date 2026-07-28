@@ -10,15 +10,15 @@ export const baseMatchSetupSchema = z.object({
 
 export const baseAutoSchema = z.object({
   moved: z.boolean().default(false),
+  died: z.boolean().default(false),
   majorFouls: z.coerce.number().min(0).default(0),
   minorFouls: z.coerce.number().min(0).default(0),
-  deadInTheWater: z.boolean().default(false),
 });
 
 export const baseTeleopSchema = z.object({
   majorFouls: z.coerce.number().min(0).default(0),
   minorFouls: z.coerce.number().min(0).default(0),
-  deadInTheWater: z.boolean().default(false),
+  died: z.boolean().default(false),
 });
 
 export const baseEndgameSchema = z.object({

@@ -9,6 +9,8 @@ import { getGameConfig } from "@/lib/games"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BaseTeamCard } from "@/components/pre-match/base-team-card"
 import { AllianceRadarChart } from "@/components/pre-match/alliance-radar-chart"
+import { MatchSelect } from "@/components/ui/match-select"
+import { formatMatchName } from "@/lib/utils"
 
 // Match interface matching the one in schedule page
 interface Match {
@@ -22,15 +24,6 @@ interface Match {
   blueTeams: string[]
 }
 
-const formatMatchName = (level: string, set: number, match: number) => {
-  switch(level) {
-    case 'qm': return `Quals ${match}`
-    case 'qf': return `Quarters ${set} Match ${match}`
-    case 'sf': return `Semis ${set} Match ${match}`
-    case 'f': return `Finals ${match}`
-    default: return `${level.toUpperCase()} ${match}`
-  }
-}
 
 export default function PreMatchDashboard() {
   const { activeEvent } = useEvent()
@@ -48,8 +41,8 @@ export default function PreMatchDashboard() {
   const handleMatchSelect = (match: Match | undefined) => {
     if (!match) return
     setSelectedMatchId(match.id)
-    setCurrentRedTeams([...(match.redTeams || []).map(t => t.replace('frc','')), '', '', ''].slice(0, 3))
-    setCurrentBlueTeams([...(match.blueTeams || []).map(t => t.replace('frc','')), '', '', ''].slice(0, 3))
+    setCurrentRedTeams([...(match.redTeams || []), '', '', ''].slice(0, 3))
+    setCurrentBlueTeams([...(match.blueTeams || []), '', '', ''].slice(0, 3))
   }
 
   useEffect(() => {
@@ -80,7 +73,7 @@ export default function PreMatchDashboard() {
     const unsubTeams = onSnapshot(teamsRef, (snapshot) => {
       const newTeamsData: Record<string, TeamData> = {}
       snapshot.forEach(doc => {
-        const rawId = doc.id.replace('frc', '')
+        const rawId = doc.id
         newTeamsData[rawId] = { id: doc.id, ...doc.data() } as TeamData & { id: string }
       })
       setTeamsData(newTeamsData)
@@ -117,21 +110,15 @@ export default function PreMatchDashboard() {
           </div>
           {activeEventId && matches.length > 0 && (
             <div className="w-full md:w-[300px] shrink-0">
-              <Select value={selectedMatchId} onValueChange={(val) => {
-                const m = matches.find(x => x.id === val)
-                handleMatchSelect(m)
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a match" />
-                </SelectTrigger>
-                <SelectContent>
-                  {matches.map(m => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {formatMatchName(m.compLevel, m.setNumber, m.matchNumber)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MatchSelect 
+                matches={matches as any} 
+                value={selectedMatchId} 
+                onValueChange={(val) => {
+                  const m = matches.find(x => x.id === val)
+                  handleMatchSelect(m)
+                }}
+                valueKey="id"
+              />
             </div>
           )}
         </div>

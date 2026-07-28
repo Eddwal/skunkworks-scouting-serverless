@@ -1,6 +1,8 @@
+'use client';
+
 import { TeamData } from "@/lib/firebase/converters"
 import { StatWithRank } from "@/components/ui/stat-with-rank"
-import { AnalyticsData2025 } from "../schemas"
+import { AnalyticsData2025 } from "../match-scout/schema"
 
 function getRankValues(allTeams: Record<string, TeamData>, extractor: (a: AnalyticsData2025) => number | undefined) {
   return Object.values(allTeams)

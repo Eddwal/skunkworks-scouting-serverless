@@ -26,8 +26,8 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-// Force the use of the emulator
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
+// We are NOT using the emulator. This will write to PRODUCTION.
+console.warn("⚠️ WARNING: SEEDING TO PRODUCTION FIRESTORE! ⚠️");
 
 initializeApp({
   projectId: projectId,
@@ -35,8 +35,8 @@ initializeApp({
 
 const db = getFirestore();
 
-const eventId = '2025reefscapedemo';
-const eventName = '2025 Reefscape Demo Event';
+const eventId = '2026rebuiltdemo';
+const eventName = '2026 Rebuilt Demo Event';
 const teams = ['1983', '254', '2910', '2046', '1318', '4911', '4414', '1678'];
 
 function generateRandomMatchHistory(teamId) {
@@ -44,8 +44,8 @@ function generateRandomMatchHistory(teamId) {
   // Generate 10 matches of trend data
   for (let i = 1; i <= 10; i++) {
     // Make the data somewhat realistic and varied
-    const baseAuto = Math.floor(Math.random() * 15) + 5;
-    const baseTeleop = Math.floor(Math.random() * 30) + 10;
+    const baseAuto = Math.floor(Math.random() * 41) + 10; // 10 to 50
+    const baseTeleop = Math.floor(Math.random() * 86) + 15; // 15 to 100
     const baseEndgame = Math.random() > 0.3 ? 12 : 2; // e.g. climbed or not
 
     // Add a slight upward trend over time
@@ -62,7 +62,7 @@ function generateRandomMatchHistory(teamId) {
   return history;
 }
 
-async function seedReefscape() {
+async function seed2026() {
   const eventDocRef = db.collection('events').doc(eventId);
   
   await eventDocRef.set({
@@ -70,9 +70,9 @@ async function seedReefscape() {
     name: eventName,
     teams: teams,
     city: 'Seattle',
-    startDate: '2025-03-01',
-    endDate: '2025-03-03',
-    game: '2025'
+    startDate: '2026-03-01',
+    endDate: '2026-03-03',
+    game: '2026'
   });
   
   console.log(`Added event ${eventId} ("${eventName}")`);
@@ -125,19 +125,7 @@ async function seedReefscape() {
     // Calculate averages for standings
     const autoPoints = history.reduce((sum, match) => sum + match.auto, 0) / history.length;
     const teleopPoints = history.reduce((sum, match) => sum + match.teleop, 0) / history.length;
-    const endgamePoints = history.reduce((sum, match) => sum + match.endgame, 0) / history.length;
-
-    const l1w = Math.random();
-    const l2w = Math.random();
-    const l3w = Math.random();
-    const l4w = Math.random();
-    const sumW = l1w + l2w + l3w + l4w;
     
-    const w1 = l1w / sumW;
-    const w2 = l2w / sumW;
-    const w3 = l3w / sumW;
-    const w4 = l4w / sumW;
-
     const teamData = {
       analytics: {
         matchCount: 10,
@@ -145,36 +133,40 @@ async function seedReefscape() {
         fouls: { major: Math.random() > 0.8 ? 1 : 0, minor: Math.floor(Math.random() * 3), yellowCards: 0, redCards: 0 },
         notes: [],
         matchHistory: history,
-        // 2025 Reefscape specific metrics with random weights
-        avgAutoCoralL4: autoPoints * w4,
-        avgAutoCoralL3: autoPoints * w3,
-        avgAutoCoralL2: autoPoints * w2,
-        avgAutoCoralL1: autoPoints * w1,
-        avgTeleopCoralL4: teleopPoints * w4,
-        avgTeleopCoralL3: teleopPoints * w3,
-        avgTeleopCoralL2: teleopPoints * w2,
-        avgTeleopCoralL1: teleopPoints * w1,
-        avgOverallCoralL4: (autoPoints + teleopPoints) * w4,
-        avgOverallCoralL3: (autoPoints + teleopPoints) * w3,
-        avgOverallCoralL2: (autoPoints + teleopPoints) * w2,
-        avgOverallCoralL1: (autoPoints + teleopPoints) * w1,
-        totalDeepClimbs: Math.floor(Math.random() * 8),
-        totalShallowClimbs: Math.floor(Math.random() * 4),
+        // 2026 Specific Metrics
+        avgAutoFuelScored: autoPoints * 1.5,
+        avgTeleopFuelScored: teleopPoints * 2,
+        avgOverallFuelScored: (autoPoints * 1.5) + (teleopPoints * 2),
+        totalAutoFuelScored: autoPoints * 1.5 * 10,
+        totalTeleopFuelScored: teleopPoints * 2 * 10,
+        totalOverallFuelScored: ((autoPoints * 1.5) + (teleopPoints * 2)) * 10
       },
       robot: {
         weight: 120,
         length: 28,
         width: 28,
         driveType: 'Swerve',
-        driveMotor: 'Kraken'
+        driveMotor: 'Kraken',
+        hopperCapacity: Math.floor(Math.random() * 50) + 20
       },
       capabilities: {
-        coralL4: { can: Math.random() > 0.2, auto: Math.random() > 0.5 },
-        coralL3: { can: Math.random() > 0.1, auto: Math.random() > 0.5 },
-        coralL2: { can: true, auto: Math.random() > 0.3 },
-        coralL1: { can: true, auto: true },
-        deepClimb: { can: Math.random() > 0.6 },
-        shallowClimb: { can: Math.random() > 0.2 },
+        movement: {
+          move: { can: true, auto: true },
+          trench: { can: Math.random() > 0.3, auto: Math.random() > 0.7 },
+          bump: { can: Math.random() > 0.5, auto: false }
+        },
+        shooting: {
+          shoot: { can: true, auto: Math.random() > 0.2 }
+        },
+        collection: {
+          floor: { can: true, auto: true },
+          depot: { can: Math.random() > 0.4, auto: false },
+          chute: { can: Math.random() > 0.8, auto: false }
+        },
+        climbing: {
+          maxLevel: ['No Climb', 'Level 1', 'Level 2', 'Level 3'][Math.floor(Math.random() * 4)],
+          autoClimb: Math.random() > 0.8
+        },
         autoDescription: "Can score consistently and leave the starting zone.",
         notes: "Solid overall performance, swerve drive looks very robust."
       }
@@ -184,7 +176,7 @@ async function seedReefscape() {
     console.log(`Seeded team data for ${teamId}`);
   }
   
-  console.log('Successfully seeded Reefscape demo data to the local Firestore emulator!');
+  console.log('Successfully seeded 2026 Rebuilt demo data to PRODUCTION!');
 }
 
-seedReefscape().catch(console.error);
+seed2026().catch(console.error);

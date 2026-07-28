@@ -11,9 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase/firebase-client';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useAuth } from '@/hooks/use-auth';
 import { useEvent } from '@/hooks/use-event';
 import { getGameConfig, DEFAULT_YEAR } from '@/lib/games';
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
+import { formatMatchName } from '@/lib/utils';
 
 import { SetupStep } from '@/components/match-scouting/setup-step';
 import { ReviewStep } from '@/components/match-scouting/review-step';
@@ -25,6 +27,7 @@ const baseFormSchema = z.object({
 });
 
 function MatchScoutFormContent() {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { events, activeEvent } = useEvent();
@@ -121,7 +124,7 @@ function MatchScoutFormContent() {
         ? data.matchSetup.substituteTeamId 
         : data.matchSetup.scheduledTeamId;
         
-      const dbTeamId = activeTeamId.startsWith('frc') ? activeTeamId : `frc${activeTeamId}`;
+      const dbTeamId = activeTeamId;
       
       const uploadData = {
         ...data,
@@ -129,8 +132,9 @@ function MatchScoutFormContent() {
         year
       };
       
-      const { uploadMatchScoutData } = await import('./upload-action');
-      await uploadMatchScoutData(uploadData);
+      const { uploadMatchScoutData } = await import('@/app/actions/upload-action');
+      const token = user ? await user.getIdToken() : undefined;
+      await uploadMatchScoutData(uploadData, token);
       
       toast.success("Match scouting data saved successfully!");
       reset();
@@ -154,7 +158,7 @@ function MatchScoutFormContent() {
       return;
     }
       
-    const dbTeamId = activeTeamId.startsWith('frc') ? activeTeamId : `frc${activeTeamId}`;
+    const dbTeamId = activeTeamId;
     
     const exportData = {
       ...data,
@@ -209,7 +213,7 @@ function MatchScoutFormContent() {
         {step > 1 && !!watchMatchSetup?.matchKey && !!activeTeamId && (
           <CardAction>
             <Badge variant="default" className="text-sm px-4 py-1">
-              {watchMatchSetup.matchKey} - Team {activeTeamId.replace('frc', '')}
+              {selectedMatch ? formatMatchName(selectedMatch.compLevel, selectedMatch.setNumber, selectedMatch.matchNumber) : watchMatchSetup.matchKey} - Team {activeTeamId}
             </Badge>
           </CardAction>
         )}

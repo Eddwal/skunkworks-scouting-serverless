@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { FormComponentProps } from '@/lib/games/types';
 import { Dimensions } from './dimensions';

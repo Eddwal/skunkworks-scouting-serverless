@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useEvent } from "@/hooks/use-event"
 import { importTbaEvent } from "@/app/actions/events/add-event"
 import { deleteEvent } from "@/app/actions/events/delete-event"
+import { formatMatchName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
@@ -111,15 +112,23 @@ export default function SchedulePage() {
     }
   }
 
-  const formatMatchName = (level: string, set: number, match: number) => {
-    switch(level) {
-      case 'qm': return `Quals ${match}`
-      case 'qf': return `Quarters ${set} Match ${match}`
-      case 'sf': return `Semis ${set} Match ${match}`
-      case 'f': return `Finals ${match}`
-      default: return `${level.toUpperCase()} ${match}`
+  const handleRefreshMatches = async () => {
+    if (!user || !activeEventId) return
+    setLoading(true)
+    try {
+      const token = await user.getIdToken()
+      const res = await importTbaEvent(activeEventId, token)
+      if (res.success) {
+        toast.success(`Successfully refreshed matches for ${activeEvent?.name || "event"}`)
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred refreshing matches")
+    } finally {
+      setLoading(false)
     }
   }
+
+
 
   return (
     <div className="flex min-h-svh flex-col bg-background p-6 md:p-10">
@@ -160,18 +169,22 @@ export default function SchedulePage() {
               </div>
               <div className="flex items-center gap-4">
                 {claims?.admin && (
-                  <Dialog open={deleteDialogOpen} onOpenChange={(open) => {
-                    setDeleteDialogOpen(open)
-                    if (!open) setDeleteConfirmText("")
-                  }}>
-                    <DialogTrigger
-                      render={
-                        <Button variant="destructive" size="sm">
-                          <TrashIcon className="mr-2 size-4" />
-                          Delete Event
-                        </Button>
-                      }
-                    />
+                  <>
+                    <Button variant="outline" size="sm" onClick={handleRefreshMatches} disabled={loading}>
+                      {loading ? "Refreshing..." : "Refresh Matches"}
+                    </Button>
+                    <Dialog open={deleteDialogOpen} onOpenChange={(open) => {
+                      setDeleteDialogOpen(open)
+                      if (!open) setDeleteConfirmText("")
+                    }}>
+                      <DialogTrigger
+                        render={
+                          <Button variant="destructive" size="sm">
+                            <TrashIcon className="mr-2 size-4" />
+                            Delete Event
+                          </Button>
+                        }
+                      />
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Are you absolutely sure?</DialogTitle>
@@ -203,6 +216,7 @@ export default function SchedulePage() {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
+                  </>
                 )}
               </div>
             </div>
@@ -234,7 +248,7 @@ export default function SchedulePage() {
                         <div className="flex-1 bg-red-500/10 p-2 sm:p-3 flex items-center justify-evenly border-r border-red-500/20">
                           {match.redTeams?.map(t => (
                             <span key={t} className="font-bold text-red-700 dark:text-red-300">
-                              {t.replace('frc','')}
+                              {t}
                             </span>
                           ))}
                         </div>
@@ -243,7 +257,7 @@ export default function SchedulePage() {
                         <div className="flex-1 bg-blue-500/10 p-2 sm:p-3 flex items-center justify-evenly">
                           {match.blueTeams?.map(t => (
                             <span key={t} className="font-bold text-blue-700 dark:text-blue-300">
-                              {t.replace('frc','')}
+                              {t}
                             </span>
                           ))}
                         </div>

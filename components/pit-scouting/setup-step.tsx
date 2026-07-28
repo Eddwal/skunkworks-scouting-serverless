@@ -1,3 +1,5 @@
+'use client';
+
 import { Controller } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -34,8 +36,7 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams }:
               </SelectTrigger>
               <SelectContent>
                 {teams.map(team => {
-                  const teamNum = team.replace(/^frc/, '');
-                  return <SelectItem key={team} value={teamNum}>{teamNum}</SelectItem>;
+                  return <SelectItem key={team} value={team}>{team}</SelectItem>;
                 })}
               </SelectContent>
             </Select>

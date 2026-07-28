@@ -1,3 +1,5 @@
+'use client';
+
 import { Controller } from 'react-hook-form';
 import { FormComponentProps } from '../../types';
 import { CapabilityRow, SectionHeader } from '@/components/pit-scouting/capabilities';

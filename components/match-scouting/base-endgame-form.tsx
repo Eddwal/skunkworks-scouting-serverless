@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactNode } from 'react';
 import { Controller } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
