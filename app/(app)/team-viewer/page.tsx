@@ -18,7 +18,7 @@ const getCachedTeams = unstable_cache(
     return fetchedTeams;
   },
   ['teams-for-event'],
-  { tags: ['events'] }
+  { tags: ['events'], revalidate: 31536000 }
 );
 
 export const metadata = {

@@ -22,7 +22,7 @@ const getCachedEvents = unstable_cache(
     });
   },
   ['all-events'],
-  { tags: ['events'], revalidate: 300 }
+  { tags: ['events'], revalidate: false }
 );
 
 export default async function AppLayout({

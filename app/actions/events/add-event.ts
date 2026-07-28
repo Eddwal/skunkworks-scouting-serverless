@@ -1,7 +1,7 @@
 'use server'
 
 import { headers } from 'next/headers';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { adminAuth } from '@/lib/firebase/firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -103,6 +103,7 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
 
   try {
     await batch.commit();
+    revalidateTag('events', 'max');
     revalidatePath('/', 'layout');
   } catch (err: any) {
     throw new Error(`Firestore commit failed: ${err.message}. Are you running the Firebase Emulator?`);

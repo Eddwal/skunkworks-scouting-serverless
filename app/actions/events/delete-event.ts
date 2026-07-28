@@ -1,7 +1,7 @@
 'use server'
 
 import { headers } from 'next/headers';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { adminAuth } from '@/lib/firebase/firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -48,6 +48,7 @@ export async function deleteEvent(eventKey: string, clientToken?: string) {
     
     await eventRef.delete();
     
+    revalidateTag('events', 'max');
     revalidatePath('/', 'layout');
     
     return { success: true, message: `Successfully deleted event ${eventKey}` };
