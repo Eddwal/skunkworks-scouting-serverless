@@ -87,3 +87,14 @@ export function processAnalytics(currentAnalytics: any, matchData: any) {
 
 ### Security Note
 To facilitate fast dashboard load times and to minimize rendering work done on scouting tablets the `/team-viewer` and `/pre-match` routes are statically rendered server side, and are only rerendered when new match or pit scout data is submitted. This means that when a client requests one of these routes they will receive all scouting data for the selected team. If they are not authenticated they will still briefly receive this data before the `AuthGuard` routes them to login, meaning in theory a non-authenticated user could request the page via curl and access a JSON of the data. Given the fact that scouting data is not hyper-sensitive and accessing it unauthenticated would take a significant amount of effort, I'm picking the speed boost to the tablets and less server-strain.
+
+## Diagrams
+TODO: Make slightly higher quality...
+###
+<img width="451" height="292" alt="SkunkworksFirebaseScouting-Overall Architecture drawio" src="https://github.com/user-attachments/assets/79e06624-d56e-4a6d-8c6a-6e95ae1fd5c2" />
+
+### Pit Scout
+<img width="765" height="293" alt="SkunkworksFirebaseScouting-Pit Scout Flow drawio" src="https://github.com/user-attachments/assets/bd2e3160-01ac-4822-ab50-768ddbdb99ed" />
+
+### Match Scout
+<img width="1084" height="291" alt="SkunkworksFirebaseScouting-Match Scout Flow drawio" src="https://github.com/user-attachments/assets/291e8124-886c-4b00-a049-b3a10a1648a2" />
