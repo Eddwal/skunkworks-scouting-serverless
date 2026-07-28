@@ -1,4 +1,11 @@
 # Skunkworks Scouting App
+Temporary Dev Server Link: [https://skunkworks-scouting-webapp--skunkworks-scouting.us-central1.hosted.app/](url)
+
+Test User Username: test@test.com
+Test User Password: test123
+
+Admin Test User Username: admin@test.com
+Admin Test User Password: test1234
 ## Adding a New Game Year
 Run the following command:
 
@@ -103,5 +110,6 @@ TODO: Make slightly higher quality...
 <img width="765" height="293" alt="SkunkworksFirebaseScouting-Pit Scout Flow drawio" src="https://github.com/user-attachments/assets/bd2e3160-01ac-4822-ab50-768ddbdb99ed" />
 
 ### Match Scout
-<img width="1084" height="291" alt="SkunkworksFirebaseScouting-Match Scout Flow drawio" src="https://github.com/user-attachments/assets/1a765065-d0d7-4d54-b1bb-8ab1d64a9a58" />
+<img width="1084" height="291" alt="SkunkworksFirebaseScouting-Match Scout Flow drawio (1)" src="https://github.com/user-attachments/assets/94a8bb81-771c-482c-ab40-d38c8a54ca77" />
+
 
