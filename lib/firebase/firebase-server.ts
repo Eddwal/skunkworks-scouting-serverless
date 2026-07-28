@@ -50,6 +50,8 @@ export async function getAuthenticatedApp() {
     }
   }
 
+  await auth.authStateReady();
+
   return { 
     firebaseServerApp, 
     currentUser: auth.currentUser 
