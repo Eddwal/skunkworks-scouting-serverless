@@ -1,3 +1,5 @@
+'use client';
+
 import { Label } from '@/components/ui/label';
 
 interface ReviewStepProps {
@@ -48,7 +50,7 @@ export function ReviewStep({ formData, photoPreview, eventName }: ReviewStepProp
       </div>
       
       <div className="bg-primary/10 text-primary p-3 rounded text-sm">
-        Clicking "Submit" will upload the photo and save all data to the database.
+        Clicking &quot;Submit&quot; will upload the photo and save all data to the database.
       </div>
     </div>
   );

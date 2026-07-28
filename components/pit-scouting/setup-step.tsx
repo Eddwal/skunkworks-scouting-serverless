@@ -1,6 +1,8 @@
+'use client';
+
 import { Controller } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TeamSelect } from '@/components/ui/team-select';
 import { ScoutingEvent } from '@/hooks/use-event';
 
 interface SetupStepProps {
@@ -28,17 +30,12 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams }:
           name="teamId"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value as any} disabled={!watchEventId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a team" />
-              </SelectTrigger>
-              <SelectContent>
-                {teams.map(team => {
-                  const teamNum = team.replace(/^frc/, '');
-                  return <SelectItem key={team} value={teamNum}>{teamNum}</SelectItem>;
-                })}
-              </SelectContent>
-            </Select>
+            <TeamSelect
+              teams={teams}
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={!watchEventId}
+            />
           )}
         />
         {errors.teamId && <p className="text-sm text-destructive">{errors.teamId.message as string}</p>}

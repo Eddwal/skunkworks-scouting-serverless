@@ -64,10 +64,10 @@ export function GlobalNav() {
               <DropdownMenuItem 
                 key={app.href} 
                 render={<Link href={buildAppHref(app.href)} />}
-                className="flex items-center gap-2 cursor-pointer w-full"
+                className="flex items-center gap-3 md:gap-2 cursor-pointer w-full py-3 md:py-1.5"
               >
-                <app.icon className="size-4 text-muted-foreground" />
-                <span>{app.name}</span>
+                <app.icon className="size-5 md:size-4 text-muted-foreground" />
+                <span className="text-base md:text-sm">{app.name}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -88,7 +88,7 @@ export function GlobalNav() {
               {activeEvent?.name}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="w-auto min-w-[var(--anchor-width)] max-w-[90vw] sm:max-w-[400px]">
             {(() => {
               if (events.length === 0) {
                 return <div className="p-2 text-sm text-muted-foreground text-center">No events found</div>;

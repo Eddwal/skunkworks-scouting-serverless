@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 import {
-  onAuthStateChanged,
+  onIdTokenChanged,
   signOut as firebaseSignOut,
   signInWithGoogle as firebaseSignInWithGoogle,
 } from '@/lib/firebase/auth';
@@ -30,17 +30,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [claims, setClaims] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(async (currentUser) => {
+    const unsubscribe = onIdTokenChanged(async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         try {
           const idTokenResult = await currentUser.getIdTokenResult();
           setClaims(idTokenResult.claims);
+          // Set cookie as fallback for Service Worker race conditions
+          document.cookie = `firebaseAuthToken=${idTokenResult.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         } catch (error) {
           console.error("Error fetching claims", error);
           setClaims({});
         }
       } else {
+        document.cookie = `firebaseAuthToken=; path=/; max-age=0`;
         setClaims({});
       }
       setLoading(false);

@@ -26,6 +26,14 @@ export const APPS: AppRegistryItem[] = [
     href: '/dashboard', 
     icon: RowsIcon 
   },
+  {
+    name: 'Standings',
+    title: 'Standings',
+    description: 'Leaderboard of all teams',
+    href: '/standings',
+    icon: ChartBarIcon
+  },
+
   { 
     name: 'Match Scout',
     title: 'Match Scout',

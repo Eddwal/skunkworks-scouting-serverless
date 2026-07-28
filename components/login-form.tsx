@@ -68,7 +68,17 @@ export function LoginForm({
 
     try {
       const provider = new GoogleAuthProvider()
-      await signInWithPopup(auth, provider)
+      const userCredential = await signInWithPopup(auth, provider)
+      
+      const { getAdditionalUserInfo } = await import("firebase/auth")
+      const additionalInfo = getAdditionalUserInfo(userCredential)
+      
+      if (additionalInfo?.isNewUser) {
+        await userCredential.user.delete()
+        setAuthError("Only administrators can create new accounts. Please contact an admin.")
+        setIsGoogleLoading(false)
+        return
+      }
       
       router.refresh()
       router.push("/dashboard")

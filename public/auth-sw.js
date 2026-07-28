@@ -3,7 +3,7 @@
 // @ts-ignore
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
 // @ts-ignore
-import { getAuth, onAuthStateChanged, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+import { getAuth, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
 const params = new URL(location.href).searchParams;
 
@@ -36,12 +36,7 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith((async () => {
     try {
-      await new Promise((resolve) => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          unsubscribe();
-          resolve(user);
-        });
-      });
+      await auth.authStateReady();
 
       const user = auth.currentUser;
       const token = user ? await user.getIdToken() : null;

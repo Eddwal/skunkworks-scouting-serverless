@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useEvent } from "@/hooks/use-event"
 import { importTbaEvent } from "@/app/actions/events/add-event"
 import { deleteEvent } from "@/app/actions/events/delete-event"
+import { formatMatchName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
@@ -19,14 +20,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+
 import { toast } from "sonner"
 import Link from "next/link"
-import { ArrowLeftIcon, TrashIcon, CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react"
+import { ArrowLeftIcon, TrashIcon } from "@phosphor-icons/react"
 import { db } from "@/lib/firebase/firebase-client"
 import { collection, onSnapshot, query, orderBy, getDocs } from "firebase/firestore"
 
@@ -51,10 +48,10 @@ export default function SchedulePage() {
   const [loadingMatches, setLoadingMatches] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState("")
-  const [isScheduleOpen, setIsScheduleOpen] = useState(true)
 
   useEffect(() => {
     if (!activeEventId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMatches([])
       return
     }
@@ -115,15 +112,23 @@ export default function SchedulePage() {
     }
   }
 
-  const formatMatchName = (level: string, set: number, match: number) => {
-    switch(level) {
-      case 'qm': return `Quals ${match}`
-      case 'qf': return `Quarters ${set} Match ${match}`
-      case 'sf': return `Semis ${set} Match ${match}`
-      case 'f': return `Finals ${match}`
-      default: return `${level.toUpperCase()} ${match}`
+  const handleRefreshMatches = async () => {
+    if (!user || !activeEventId) return
+    setLoading(true)
+    try {
+      const token = await user.getIdToken()
+      const res = await importTbaEvent(activeEventId, token)
+      if (res.success) {
+        toast.success(`Successfully refreshed matches for ${activeEvent?.name || "event"}`)
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred refreshing matches")
+    } finally {
+      setLoading(false)
     }
   }
+
+
 
   return (
     <div className="flex min-h-svh flex-col bg-background p-6 md:p-10">
@@ -157,37 +162,29 @@ export default function SchedulePage() {
         )}
         
         {activeEvent ? (
-          <Collapsible
-            open={isScheduleOpen}
-            onOpenChange={setIsScheduleOpen}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CollapsibleTrigger
-                  render={
-                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      {isScheduleOpen ? <CaretUpIcon className="size-5" /> : <CaretDownIcon className="size-5" />}
-                      <span className="sr-only">Toggle schedule</span>
-                    </Button>
-                  }
-                />
                 <h2 className="text-xl font-semibold tracking-tight">{activeEvent.name} Schedule</h2>
               </div>
               <div className="flex items-center gap-4">
                 {claims?.admin && (
-                  <Dialog open={deleteDialogOpen} onOpenChange={(open) => {
-                    setDeleteDialogOpen(open)
-                    if (!open) setDeleteConfirmText("")
-                  }}>
-                    <DialogTrigger
-                      render={
-                        <Button variant="destructive" size="sm">
-                          <TrashIcon className="mr-2 size-4" />
-                          Delete Event
-                        </Button>
-                      }
-                    />
+                  <>
+                    <Button variant="outline" size="sm" onClick={handleRefreshMatches} disabled={loading}>
+                      {loading ? "Refreshing..." : "Refresh Matches"}
+                    </Button>
+                    <Dialog open={deleteDialogOpen} onOpenChange={(open) => {
+                      setDeleteDialogOpen(open)
+                      if (!open) setDeleteConfirmText("")
+                    }}>
+                      <DialogTrigger
+                        render={
+                          <Button variant="destructive" size="sm">
+                            <TrashIcon className="mr-2 size-4" />
+                            Delete Event
+                          </Button>
+                        }
+                      />
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Are you absolutely sure?</DialogTitle>
@@ -219,11 +216,12 @@ export default function SchedulePage() {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
+                  </>
                 )}
               </div>
             </div>
             
-            <CollapsibleContent className="space-y-6">
+            <div className="space-y-6">
             {loadingMatches ? (
               <div className="text-center text-muted-foreground p-8">Loading matches...</div>
             ) : matches.length > 0 ? (
@@ -250,7 +248,7 @@ export default function SchedulePage() {
                         <div className="flex-1 bg-red-500/10 p-2 sm:p-3 flex items-center justify-evenly border-r border-red-500/20">
                           {match.redTeams?.map(t => (
                             <span key={t} className="font-bold text-red-700 dark:text-red-300">
-                              {t.replace('frc','')}
+                              {t}
                             </span>
                           ))}
                         </div>
@@ -259,7 +257,7 @@ export default function SchedulePage() {
                         <div className="flex-1 bg-blue-500/10 p-2 sm:p-3 flex items-center justify-evenly">
                           {match.blueTeams?.map(t => (
                             <span key={t} className="font-bold text-blue-700 dark:text-blue-300">
-                              {t.replace('frc','')}
+                              {t}
                             </span>
                           ))}
                         </div>
@@ -273,8 +271,8 @@ export default function SchedulePage() {
                 No matches found for this event.
               </div>
             )}
-            </CollapsibleContent>
-          </Collapsible>
+            </div>
+          </div>
         ) : (
           <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
             No events available. {claims?.admin ? "Import an event to get started." : ""}

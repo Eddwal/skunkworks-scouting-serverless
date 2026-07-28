@@ -1,13 +1,13 @@
 'use server'
 
 import { headers } from 'next/headers';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { adminAuth } from '@/lib/firebase/firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const TBA_BASE_URL = 'https://www.thebluealliance.com/api/v3';
 
 export async function importTbaEvent(eventKey: string, clientToken?: string) {
-  console.log("=== ACTION STARTED ===", eventKey);
   const headersList = await headers();
   const token = clientToken || headersList.get('Authorization')?.split('Bearer ')[1];
   if (!token) throw new Error("Unauthorized");
@@ -16,7 +16,7 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
   try {
     decodedToken = await adminAuth.verifyIdToken(token);
   } catch (err: any) {
-    throw new Error(`Auth verification failed: ${err.message}. Are you running the Firebase Emulator?`);
+    throw new Error(`Auth verification failed: ${err.message}. Are you running the Firebase Emulator?`); // I wonder why I needed to add this in... ;)
   }
   if (!decodedToken.admin) throw new Error("Forbidden: Only users with admin claim may update events");
 
@@ -28,25 +28,29 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
   
   const fetchOpts: RequestInit = { headers: tbaHeaders, cache: 'no-store' };
 
-  const [eventRes, matchesRes] = await Promise.all([
+  const [eventRes, matchesRes, teamsRes] = await Promise.all([
     fetch(`${TBA_BASE_URL}/event/${eventKey}/simple`, fetchOpts),
-    fetch(`${TBA_BASE_URL}/event/${eventKey}/matches/simple`, fetchOpts)
+    fetch(`${TBA_BASE_URL}/event/${eventKey}/matches/simple`, fetchOpts),
+    fetch(`${TBA_BASE_URL}/event/${eventKey}/teams/simple`, fetchOpts)
   ]);
 
-  if (!eventRes.ok || !matchesRes.ok) {
-    throw new Error(`Failed to fetch data from The Blue Alliance: ${eventRes.status} ${matchesRes.status}`);
+  if (!eventRes.ok || !matchesRes.ok || !teamsRes.ok) {
+    throw new Error(`Failed to fetch data from The Blue Alliance: ${eventRes.status} ${matchesRes.status} ${teamsRes.status}`);
   }
 
   const eventText = await eventRes.text();
   const matchesText = await matchesRes.text();
-  let eventData, matchesData;
+  const teamsText = await teamsRes.text();
+  let eventData, matchesData, teamsData;
   try {
     eventData = JSON.parse(eventText);
     matchesData = JSON.parse(matchesText);
+    teamsData = JSON.parse(teamsText);
   } catch (err: any) {
     console.error("Failed to parse JSON.");
     console.error("eventText (first 100 chars):", eventText.slice(0, 100));
     console.error("matchesText (first 100 chars):", matchesText.slice(0, 100));
+    console.error("teamsText (first 100 chars):", teamsText.slice(0, 100));
     throw new Error(`JSON parse error: ${err.message}. EventTextLength: ${eventText.length}, MatchesTextLength: ${matchesText.length}`);
   }
 
@@ -55,8 +59,8 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
 
   const uniqueTeams = new Set<string>();
   matchesData.forEach((match: any) => {
-    match.alliances.red.team_keys.forEach((team: string) => uniqueTeams.add(team));
-    match.alliances.blue.team_keys.forEach((team: string) => uniqueTeams.add(team));
+    match.alliances.red.team_keys.forEach((team: string) => uniqueTeams.add(team.replace('frc', '')));
+    match.alliances.blue.team_keys.forEach((team: string) => uniqueTeams.add(team.replace('frc', '')));
   });
   const teams = Array.from(uniqueTeams);
 
@@ -69,7 +73,7 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
     teams: teams,
     importedAt: new Date().toISOString(),
     importedBy: decodedToken.uid,
-  });
+  }, { merge: true });
 
   matchesData.forEach((match: any) => {
     const matchRef = eventRef.collection('matches').doc(match.key);
@@ -80,13 +84,27 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
       matchNumber: match.match_number,
       setNumber: match.set_number,
       time: match.time, // Unix timestamp
-      redTeams: match.alliances.red.team_keys,
-      blueTeams: match.alliances.blue.team_keys,
-    });
+      redTeams: match.alliances.red.team_keys.map((t: string) => t.replace('frc', '')),
+      blueTeams: match.alliances.blue.team_keys.map((t: string) => t.replace('frc', '')),
+    }, { merge: true });
+  });
+
+  teamsData.forEach((team: any) => {
+    const teamNumber = team.key.replace('frc', '');
+    const teamRef = eventRef.collection('teams').doc(teamNumber);
+    batch.set(teamRef, {
+      name: team.name,
+      nickname: team.nickname,
+      eventId: eventKey,
+      teamId: teamNumber,
+      year: eventKey.substring(0, 4)
+    }, { merge: true });
   });
 
   try {
     await batch.commit();
+    revalidateTag('events', 'max');
+    revalidatePath('/', 'layout');
   } catch (err: any) {
     throw new Error(`Firestore commit failed: ${err.message}. Are you running the Firebase Emulator?`);
   }

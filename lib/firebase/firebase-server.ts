@@ -15,7 +15,14 @@ const firebaseConfig = {
 export async function getAuthenticatedApp() {
   const headersList = await headers();
   const authHeader = headersList.get('Authorization') || '';
-  const idToken = authHeader.startsWith('Bearer ') ? authHeader.split('Bearer ')[1] : undefined;
+  let idToken = authHeader.startsWith('Bearer ') ? authHeader.split('Bearer ')[1] : undefined;
+  
+  if (!idToken) {
+    // Fallback to cookie if Authorization header is missing (e.g. initial load before SW intercepts)
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    idToken = cookieStore.get('firebaseAuthToken')?.value;
+  }
 
   const firebaseServerApp = initializeServerApp(firebaseConfig, {
     authIdToken: idToken,
@@ -42,6 +49,8 @@ export async function getAuthenticatedApp() {
       }
     }
   }
+
+  await auth.authStateReady();
 
   return { 
     firebaseServerApp, 

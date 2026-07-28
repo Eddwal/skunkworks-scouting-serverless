@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
 import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, type Firestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, memoryLocalCache } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig: FirebaseOptions = {
@@ -19,7 +19,17 @@ export function getFirebaseApp() {
 
 export const firebaseApp = getFirebaseApp();
 export const auth: Auth = getAuth(firebaseApp);
-export const db: Firestore = getFirestore(firebaseApp);
+let firestoreDb: Firestore;
+try {
+  firestoreDb = initializeFirestore(firebaseApp, {
+    localCache: typeof window !== 'undefined' 
+      ? persistentLocalCache({ tabManager: persistentMultipleTabManager() }) 
+      : memoryLocalCache()
+  });
+} catch (e) {
+  firestoreDb = getFirestore(firebaseApp);
+}
+export const db: Firestore = firestoreDb;
 export const storage: FirebaseStorage = getStorage(firebaseApp);
 
 if (

@@ -26,10 +26,10 @@ const EventContext = createContext<EventContextType>({
 
 export function EventProvider({ 
   children,
-  initialEvents 
+  initialEvents = []
 }: { 
   children: React.ReactNode;
-  initialEvents: ScoutingEvent[];
+  initialEvents?: ScoutingEvent[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,6 +59,7 @@ export function EventProvider({
     // Update active state
     if (currentEventId) {
       const eventObj = events.find(e => e.id === currentEventId) || null;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveEventState(eventObj);
       if (eventObj) {
         localStorage.setItem('skunkworks_active_event', eventObj.id);
