@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { WrenchIcon, NoteIcon, WarningIcon, CameraIcon, ChartBarIcon } from "@phosphor-icons/react"
 import { GameConfig } from "@/lib/games/types"
+import { formatMatchKey } from "@/lib/utils"
 
 interface BaseTeamCardProps {
   teamNum: string
@@ -140,7 +141,7 @@ export function BaseTeamCard({ teamNum, teamData, allTeams, onTeamChange, allian
                         )}
                         {analytics?.notes?.map((note: any, i: number) => (
                           <div key={i} className="border border-border/50 rounded p-3 text-sm">
-                            <div className="font-semibold text-primary mb-1">{note.title}</div>
+                            <div className="font-semibold text-primary mb-1">{formatMatchKey(note.title).toUpperCase()}</div>
                             <p className="text-muted-foreground whitespace-pre-wrap">{note.content}</p>
                           </div>
                         ))}

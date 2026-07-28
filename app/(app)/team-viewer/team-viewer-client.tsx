@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { CircleNotchIcon, ArrowSquareOutIcon } from '@phosphor-icons/react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { formatMatchKey } from '@/lib/utils';
 
 export default function TeamViewerClient({
   initialTeams,
@@ -350,7 +351,7 @@ export default function TeamViewerClient({
                     )}
                     {teamData.analytics?.notes?.map((note, idx) => (
                       <div key={idx} className="bg-muted/30 p-3 rounded-md border">
-                        <div className="font-semibold text-sm mb-1 text-primary">{note.title.toUpperCase()}</div>
+                        <div className="font-semibold text-sm mb-1 text-primary">{formatMatchKey(note.title).toUpperCase()}</div>
                         <div className="text-sm whitespace-pre-wrap">{note.content}</div>
                       </div>
                     ))}
