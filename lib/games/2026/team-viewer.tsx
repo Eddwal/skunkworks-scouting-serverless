@@ -30,7 +30,7 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
         </div>
         <div className="px-1">
           <CapabilityViewerRow label="Move in Auto" can={data?.movement?.move?.can} auto={data?.movement?.move?.auto} hasCan={false} />
-          <CapabilityViewerRow label="Use Trench" can={data?.movement?.trench?.can} />
+          <CapabilityViewerRow label="Use Trench" can={data?.movement?.trench?.can} auto={data?.movement?.trench?.auto} />
           <CapabilityViewerRow label="Use Bump" can={data?.movement?.bump?.can} auto={data?.movement?.bump?.auto} />
         </div>
       </div>
@@ -57,7 +57,7 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
           </div>
         </div>
         <div className="px-1">
-          <CapabilityViewerRow label="Pick Up From Floor" can={data?.collection?.floor?.can} />
+          <CapabilityViewerRow label="Pick Up From Floor" can={data?.collection?.floor?.can} auto={data?.collection?.floor?.auto} />
           <CapabilityViewerRow label="Use Depot" can={data?.collection?.depot?.can} auto={data?.collection?.depot?.auto} />
           <CapabilityViewerRow label="Use Chute" can={data?.collection?.chute?.can} auto={data?.collection?.chute?.auto} />
         </div>

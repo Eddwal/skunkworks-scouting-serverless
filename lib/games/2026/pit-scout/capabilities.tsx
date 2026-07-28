@@ -17,7 +17,7 @@ export function PitScoutCapabilities(props: FormComponentProps) {
         <SectionHeader title="Movement" />
         <div className="bg-muted/20 rounded-md px-3 border border-border/50">
           <CapabilityRow label="Move in Auto" name="capabilities.movement.move" control={control} hasCan={false} />
-          <CapabilityRow label="Use Trench" name="capabilities.movement.trench" control={control} hasAuto={false} />
+          <CapabilityRow label="Use Trench" name="capabilities.movement.trench" control={control} />
           <CapabilityRow label="Use Bump" name="capabilities.movement.bump" control={control} />
         </div>
       </div>
@@ -32,7 +32,7 @@ export function PitScoutCapabilities(props: FormComponentProps) {
       <div className="space-y-3">
         <SectionHeader title="Collection" />
         <div className="bg-muted/20 rounded-md px-3 border border-border/50">
-          <CapabilityRow label="Pick Up From Floor" name="capabilities.collection.floor" control={control} hasAuto={false} />
+          <CapabilityRow label="Pick Up From Floor" name="capabilities.collection.floor" control={control} />
           <CapabilityRow label="Use Depot" name="capabilities.collection.depot" control={control} />
           <CapabilityRow label="Use Chute" name="capabilities.collection.chute" control={control} />
         </div>
