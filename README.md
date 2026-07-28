@@ -20,25 +20,25 @@ npm run generate-year 2027 "Biocore"
 After running the script, you will need to implement the game-specific logic. The system is highly modular, so you only need to edit files within your newly generated `lib/games/<year>/` directory:
 
 1. **Define Data Models**: 
-   Open `lib/games/<year>/schemas.ts`. This file uses [Zod](https://zod.dev/) to define the data structures for both Pit and Match scouting. Add your new game-specific fields (e.g., `canScoreHigh: z.boolean()`) to the appropriate schemas. You can also define analytics fields in `analyticsSchema` for calculated values from match data such as percent uptime. These schemas automatically power the form validation and the TypeScript types across the app.
+   Open `lib/games/<year>/pit-scout/schema.ts` and `lib/games/<year>/match-scout/schema.ts`. These files uses [Zod](https://zod.dev/) to define the global data structures for Pit and Match scouting. Add your new game-specific fields (e.g., `canScoreHigh: z.boolean()`) to the appropriate schemas. You can also define analytics fields in `analyticsSchema` for calculated values from match data such as percent uptime. These schemas automatically power the form validation, Firestore document schemas, and TypeScript types across the app.
 
 2. **Build Scouting Forms**: 
-   Update the form components to include inputs for your new schema fields. These forms use [React Hook Form](https://react-hook-form.com/) combined with [Shadcn UI](https://ui.shadcn.com/docs/components/form) components.
+   Update the form components to include inputs for your new schema fields. These forms use [React Hook Form](https://react-hook-form.com/) combined with [Shadcn UI](https://ui.shadcn.com/docs/components/form) components. There is a small library of existing components for this in `components/`
    - **Pit Scouting**: Edit `lib/games/<year>/pit-scout/robot.tsx` and `lib/games/<year>/pit-scout/capabilities.tsx`.
    - **Match Scouting**: Edit `lib/games/<year>/match-scout/auto.tsx`, `lib/games/<year>/match-scout/teleop.tsx`, and `lib/games/<year>/match-scout/endgame.tsx`.
 
 3. **Configure the Team Viewer**: 
-   To display the collected data to users, edit `lib/games/<year>/team-viewer.tsx`. You will need to implement the `RobotViewerComponent` and `CapabilitiesViewerComponent` to format and display the year-specific data properly on the main Team Viewer dashboard. You can also optionally implement and export an `AnalyticsViewerComponent` for match data visualizations.
+   To display the collected data to users, edit `lib/games/<year>/team-viewer.tsx`. You will need to implement the `RobotViewerComponent`, `CapabilitiesViewerComponent`, and `AnalyticsViewerComponent` to format and display the year-specific data properly on the main Team Viewer dashboard.
 
 4. **Configure Standings Leaderboard**:
-   You can configure the global Standings app to show a dynamic leaderboard of teams by adding a `standings` config to your year's `GameConfig` in `lib/games/<year>/index.ts`.
-   This config requires a `calculateStandings` function (which maps raw team data to display values like rank, auto points, teleop points), an array of `dataKeys` (to render as stacked chart segments), and a `chartConfig` (for UI labels and colors).
+   You can configure the global Standings app to show a leaderboard of teams by adding a `standings` config to your year's `GameConfig` in `lib/games/<year>/index.ts`.
+   This config requires a `calculateStandings` function which maps raw team data to display values such as rank, auto points, teleop points, an array of `dataKeys` (to render as stacked chart segments), and a `chartConfig` (for UI labels and colors).
 ## Local Development & Emulators
 
-This project is configured to use Firebase Local Emulators for safe, offline development without affecting production data.
+This project is setup to use Firebase Local Emulators for development.
 
 1. **Start the Emulators**: 
-   Run `npm run emulators`. This will start the local Firebase App Hosting emulator (which builds and serves your Next.js app), Auth emulator, and Firestore emulator. The web app will automatically be available at `http://localhost:5002`. It also automatically saves and loads emulator data from the `./emulator-data` directory on exit.
+   Run `npm run emulators`. This will start the local Firebase App Hosting emulator (which builds and serves the Next.js app), Auth emulator, Cloud Storage, and Firestore emulator. The web app will automatically be available at `http://localhost:5002`. It also automatically saves and loads emulator data from the `./emulator-data` directory on exit.
 
 2. **Seed a Demo Event**: 
    If your emulator database is empty, you can populate it with test teams and matches. **While the emulator is running**, open a new terminal tab and run:
@@ -47,14 +47,16 @@ This project is configured to use Firebase Local Emulators for safe, offline dev
    ```
    Replacing the year and the event name with the current info
 
+   You can also seed an event with randomly generated match scouting data sets, with example scripts existing for 2025 and 2026 in `scripts/`
+
 ## Firebase & Architecture
 
 ### Database Structure
 The application uses a **Cloud Firestore** document DB structured around events:
 - `events/{eventId}`: Stores metadata for a given competition (e.g., 2026wasam).
-- `events/{eventId}/matches/{matchKey}`: Stores the raw individual match scouting reports submitted for that match.
+- `events/{eventId}/matches/{matchKey}`: Stores the metadata imported from TBA for a match and the raw match scouting reports submitted for that match.
 - `events/{eventId}/teams/{teamId}`: This contains all data collected for a given team, including match scout data and pit scout data
-  - `robot` & `capabilities`: Contains the data collected directly from Pit Scouting.
+  - `robot` & `capabilities`: Contains the data collected from Pit Scouting.
   - `analytics`: Contains the aggregated stats calculated from all Match Scouting reports.
 
 ### How Analytics Work
@@ -62,7 +64,7 @@ The application stores pre-aggregated data in the `analytics` field directly on 
 
 When Match Scouting data is submitted, it updates this centralized `analytics` object for a given team.
 
-The base analytics schema enforces standard metrics across all years (e.g., `matchCount`, `uptime`, `fouls`). By defining an `analyticsSchema` in your year-specific config, you can define custom fields (like `totalCoralScored` or `avgCoralScored`).
+The base analytics schema includes evergreen metrics for all years (e.g., `matchCount`, `uptime`, `fouls`). By defining an `analyticsSchema` in your year-specific config, you can define custom fields (like `totalCoralScored` or `avgCoralScored`).
 
 **Adding Year-Specific Analytics Logic:**
 To inject your year-specific metrics into this pipeline, you need to implement the `processAnalytics` function located in `lib/games/<year>/analytics.ts`.
@@ -86,7 +88,11 @@ export function processAnalytics(currentAnalytics: any, matchData: any) {
 ```
 
 ### Security Note
-To facilitate fast dashboard load times and to minimize rendering work done on scouting tablets the `/team-viewer` and `/pre-match` routes are statically rendered server side, and are only rerendered when new match or pit scout data is submitted. This means that when a client requests one of these routes they will receive all scouting data for the selected team. If they are not authenticated they will still briefly receive this data before the `AuthGuard` routes them to login, meaning in theory a non-authenticated user could request the page via curl and access a JSON of the data. Given the fact that scouting data is not hyper-sensitive and accessing it unauthenticated would take a significant amount of effort, I'm picking the speed boost to the tablets and less server-strain.
+To help with fast dashboard load times and to minimize rendering work done on scouting tablets the `/team-viewer` and `/pre-match` routes are statically rendered server side, and are only rerendered when new match or pit scout data is submitted. 
+
+This means that when a client requests one of these routes they will receive all scouting data for the selected team. If they are not authenticated they will still briefly receive this data before the `AuthGuard` routes them to login, meaning in theory a non-authenticated user could request the page via curl and access a JSON of the data. 
+
+Given the fact that scouting data is not hyper-sensitive and accessing it unauthenticated would take a significant amount of effort, I am going with the speed boost
 
 ## Diagrams
 TODO: Make slightly higher quality...
@@ -97,4 +103,5 @@ TODO: Make slightly higher quality...
 <img width="765" height="293" alt="SkunkworksFirebaseScouting-Pit Scout Flow drawio" src="https://github.com/user-attachments/assets/bd2e3160-01ac-4822-ab50-768ddbdb99ed" />
 
 ### Match Scout
-<img width="1084" height="291" alt="SkunkworksFirebaseScouting-Match Scout Flow drawio" src="https://github.com/user-attachments/assets/291e8124-886c-4b00-a049-b3a10a1648a2" />
+<img width="1084" height="291" alt="SkunkworksFirebaseScouting-Match Scout Flow drawio" src="https://github.com/user-attachments/assets/1a765065-d0d7-4d54-b1bb-8ab1d64a9a58" />
+
