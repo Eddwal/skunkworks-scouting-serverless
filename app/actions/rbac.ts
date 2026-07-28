@@ -81,7 +81,7 @@ export async function demoteUser(uid: string) {
   delete newClaims.admin;
   
   if (Object.keys(newClaims).length === 0) {
-    // If no other claims exist, we must pass null to clear all claims
+    // If no other claims exist, pass null to clear all claims
     await adminAuth.setCustomUserClaims(uid, null);
   } else {
     await adminAuth.setCustomUserClaims(uid, newClaims);

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { WrenchIcon, NoteIcon, WarningIcon, CameraIcon, ChartBarIcon } from "@phosphor-icons/react"
 import { GameConfig } from "@/lib/games/types"
-import { formatMatchKey } from "@/lib/utils"
+import { formatMatchKey, getResolvableImageUrl } from "@/lib/utils"
 
 interface BaseTeamCardProps {
   teamNum: string
@@ -35,7 +35,7 @@ export function BaseTeamCard({ teamNum, teamData, allTeams, onTeamChange, allian
       {/* Left side: Photo */}
       <div className="shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-md overflow-hidden bg-muted/50 flex flex-col items-center justify-center border border-border/50 relative">
         {teamData?.photoUrl ? (
-          <img src={teamData.photoUrl} alt={`Team ${teamNum} robot`} className="w-full h-full object-cover" />
+          <img src={getResolvableImageUrl(teamData.photoUrl)} alt={`Team ${teamNum} robot`} className="w-full h-full object-cover" />
         ) : (
           <div className="flex flex-col items-center justify-center text-muted-foreground/50">
             <CameraIcon className="size-8 mb-1" />

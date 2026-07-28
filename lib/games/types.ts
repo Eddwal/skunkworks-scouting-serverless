@@ -63,6 +63,13 @@ export interface PreMatchConfig {
   radarMetrics?: { key: string; label: string }[];
 }
 
+export interface TeamViewerConfig {
+  getAdditionalHeaderStats?: (
+    teamData: TeamData,
+    initialTeams: (TeamData & { id: string })[]
+  ) => { label: string; value: number | string; rank: number | string; description?: string }[];
+}
+
 export interface GameConfig {
   year: string;
   name: string;
@@ -71,5 +78,6 @@ export interface GameConfig {
   matchScout?: MatchScoutConfig;
   standings?: StandingsConfig;
   preMatch?: PreMatchConfig;
+  teamViewer?: TeamViewerConfig;
   calculateMatchPoints?: (matchData: any) => MatchPoints;
 }

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 import {
-  onAuthStateChanged,
+  onIdTokenChanged,
   signOut as firebaseSignOut,
   signInWithGoogle as firebaseSignInWithGoogle,
 } from '@/lib/firebase/auth';
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [claims, setClaims] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(async (currentUser) => {
+    const unsubscribe = onIdTokenChanged(async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         try {

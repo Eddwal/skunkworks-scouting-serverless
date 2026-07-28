@@ -158,11 +158,13 @@ export function MatchScoutEndgame(props: FormComponentProps) {
 `;
     await fs.writeFile(path.join(baseDir, 'match-scout', 'endgame.tsx'), matchScoutEndgameContent);
 
-    // 4. Create team-viewer.tsx
+    // 4. Create team-viewer components
+    await fs.mkdir(path.join(baseDir, 'team-viewer'), { recursive: true });
+    
     const teamViewerContent = `import { z } from 'zod';
 import { CapabilityViewerRow } from '@/components/pit-scouting/capabilities';
-import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
-import { analyticsSchema } from './match-scout/schema';
+import { robotSchema, capabilitiesSchema } from '../pit-scout/schema';
+import { analyticsSchema } from '../match-scout/schema';
 
 export const RobotViewerComponent = ({ data }: { data: z.infer<typeof robotSchema> }) => null;
 
@@ -174,7 +176,39 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
   );
 };
 `;
-    await fs.writeFile(path.join(baseDir, 'team-viewer.tsx'), teamViewerContent);
+    await fs.writeFile(path.join(baseDir, 'team-viewer', 'components.tsx'), teamViewerContent);
+
+    // 4b. Create team-viewer header stats
+    const headerStatsContent = `import { TeamData } from '@/lib/firebase/converters';
+import { AnalyticsData${year} } from '../match-scout/schema';
+import { calculateDenseRank } from '@/lib/utils';
+
+export const getAdditionalHeaderStats = (
+  teamData: TeamData,
+  initialTeams: (TeamData & { id: string })[]
+) => {
+  const stats: { label: string; value: number | string; rank: number | string; description?: string }[] = [];
+  
+  /* Example stat:
+  const analytics = teamData.analytics as AnalyticsData${year} | undefined;
+  if (analytics) {
+    const value = analytics.someValue ?? 0;
+    const allValues = initialTeams.map(t => (t.analytics as AnalyticsData${year} | undefined)?.someValue ?? 0);
+    const { rank, totalRanks } = calculateDenseRank(value, allValues);
+    
+    stats.push({
+      label: 'Sample Stat',
+      value: value.toFixed(1),
+      rank: rank > 0 ? \`\${rank} of \${totalRanks}\` : 'N/A',
+      description: 'Average sample value scored'
+    });
+  }
+  */
+
+  return stats;
+};
+`;
+    await fs.writeFile(path.join(baseDir, 'team-viewer', 'header-stats.ts'), headerStatsContent);
 
     // 5. Create analytics.ts
     const analyticsContent = `export function processAnalytics(currentAnalytics: any, matchData: any) {
@@ -274,7 +308,8 @@ import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';
 import { MatchScoutTeleop } from './match-scout/teleop';
 import { MatchScoutEndgame } from './match-scout/endgame';
-import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
+import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer/components';
+import { getAdditionalHeaderStats } from './team-viewer/header-stats';
 import { processAnalytics, calculateMatchPoints } from './analytics';
 import { calculateStandings } from './standings';
 import { Year${year}Stats } from './pre-match/stats';
@@ -310,6 +345,9 @@ export const Game${year}: GameConfig = {
     radarMetrics: [
       // Add radar metrics here, e.g. { key: "avgPoints", label: "Points" }
     ],
+  },
+  teamViewer: {
+    getAdditionalHeaderStats,
   },
   calculateMatchPoints
 };

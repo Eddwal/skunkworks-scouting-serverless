@@ -6,7 +6,8 @@ import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';
 import { MatchScoutTeleop } from './match-scout/teleop';
 import { MatchScoutEndgame } from './match-scout/endgame';
-import { RobotViewerComponent, CapabilitiesViewerComponent, AnalyticsViewerComponent } from './team-viewer';
+import { RobotViewerComponent, CapabilitiesViewerComponent, AnalyticsViewerComponent } from './team-viewer/components';
+import { getAdditionalHeaderStats } from './team-viewer/header-stats';
 import { processAnalytics } from './analytics';
 
 import { ReefscapeStats } from './pre-match/stats';
@@ -46,4 +47,7 @@ export const Game2025: GameConfig = {
       { key: "totalShallowClimbs", label: "Shallow Climb" },
     ],
   },
+  teamViewer: {
+    getAdditionalHeaderStats,
+  }
 };

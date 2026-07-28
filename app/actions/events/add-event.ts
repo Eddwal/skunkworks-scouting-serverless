@@ -28,25 +28,29 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
   
   const fetchOpts: RequestInit = { headers: tbaHeaders, cache: 'no-store' };
 
-  const [eventRes, matchesRes] = await Promise.all([
+  const [eventRes, matchesRes, teamsRes] = await Promise.all([
     fetch(`${TBA_BASE_URL}/event/${eventKey}/simple`, fetchOpts),
-    fetch(`${TBA_BASE_URL}/event/${eventKey}/matches/simple`, fetchOpts)
+    fetch(`${TBA_BASE_URL}/event/${eventKey}/matches/simple`, fetchOpts),
+    fetch(`${TBA_BASE_URL}/event/${eventKey}/teams/simple`, fetchOpts)
   ]);
 
-  if (!eventRes.ok || !matchesRes.ok) {
-    throw new Error(`Failed to fetch data from The Blue Alliance: ${eventRes.status} ${matchesRes.status}`);
+  if (!eventRes.ok || !matchesRes.ok || !teamsRes.ok) {
+    throw new Error(`Failed to fetch data from The Blue Alliance: ${eventRes.status} ${matchesRes.status} ${teamsRes.status}`);
   }
 
   const eventText = await eventRes.text();
   const matchesText = await matchesRes.text();
-  let eventData, matchesData;
+  const teamsText = await teamsRes.text();
+  let eventData, matchesData, teamsData;
   try {
     eventData = JSON.parse(eventText);
     matchesData = JSON.parse(matchesText);
+    teamsData = JSON.parse(teamsText);
   } catch (err: any) {
     console.error("Failed to parse JSON.");
     console.error("eventText (first 100 chars):", eventText.slice(0, 100));
     console.error("matchesText (first 100 chars):", matchesText.slice(0, 100));
+    console.error("teamsText (first 100 chars):", teamsText.slice(0, 100));
     throw new Error(`JSON parse error: ${err.message}. EventTextLength: ${eventText.length}, MatchesTextLength: ${matchesText.length}`);
   }
 
@@ -82,6 +86,18 @@ export async function importTbaEvent(eventKey: string, clientToken?: string) {
       time: match.time, // Unix timestamp
       redTeams: match.alliances.red.team_keys.map((t: string) => t.replace('frc', '')),
       blueTeams: match.alliances.blue.team_keys.map((t: string) => t.replace('frc', '')),
+    }, { merge: true });
+  });
+
+  teamsData.forEach((team: any) => {
+    const teamNumber = team.key.replace('frc', '');
+    const teamRef = eventRef.collection('teams').doc(teamNumber);
+    batch.set(teamRef, {
+      name: team.name,
+      nickname: team.nickname,
+      eventId: eventKey,
+      teamId: teamNumber,
+      year: eventKey.substring(0, 4)
     }, { merge: true });
   });
 

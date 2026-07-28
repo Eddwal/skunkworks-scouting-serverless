@@ -6,9 +6,12 @@ import { PitScoutCapabilities } from './pit-scout/capabilities';
 import { MatchScoutAuto } from './match-scout/auto';
 import { MatchScoutTeleop } from './match-scout/teleop';
 import { MatchScoutEndgame } from './match-scout/endgame';
-import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer';
+import { RobotViewerComponent, CapabilitiesViewerComponent } from './team-viewer/components';
+import { getAdditionalHeaderStats } from './team-viewer/header-stats';
 import { processAnalytics, calculateMatchPoints } from './analytics';
 import { calculateStandings } from './standings';
+import { Year2027Stats } from './pre-match/stats';
+import { Year2027CapabilitiesBadge } from './pre-match/capabilities-badge';
 
 export const Game2027: GameConfig = {
   year: '2027',
@@ -33,6 +36,16 @@ export const Game2027: GameConfig = {
   },
   standings: {
     calculateStandings
+  },
+  preMatch: {
+    StatsComponent: Year2027Stats,
+    CapabilitiesBadgeComponent: Year2027CapabilitiesBadge,
+    radarMetrics: [
+      // Add radar metrics here, e.g. { key: "avgPoints", label: "Points" }
+    ],
+  },
+  teamViewer: {
+    getAdditionalHeaderStats,
   },
   calculateMatchPoints
 };

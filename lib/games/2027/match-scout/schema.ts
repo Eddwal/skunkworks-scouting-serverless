@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import { baseMatchSetupSchema, baseAutoSchema, baseTeleopSchema, baseEndgameSchema } from '@/components/match-scouting/schemas';
+import { baseAutoSchema, baseTeleopSchema, baseEndgameSchema, baseMatchSetupSchema } from '@/components/match-scouting/schemas';
 
-// Match Scout Schemas
 export const autoSchema = baseAutoSchema.extend({
   // Add year specific auto fields here
 });

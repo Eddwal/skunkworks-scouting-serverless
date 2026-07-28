@@ -17,8 +17,6 @@ export default function StandingsClient({
 }) {
   const { activeEvent } = useEvent();
   
-  // If no activeEvent is set in the client, but we have a serverEventId, we could use that.
-  // However, useEvent hook typically synchronizes. We will rely on activeEvent.
   const eventToUse = activeEvent || (serverEventId ? { id: serverEventId, name: 'Loading...' } : null);
   
   const year = eventToUse?.id ? eventToUse.id.substring(0, 4) : DEFAULT_YEAR;
