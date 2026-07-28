@@ -1,5 +1,6 @@
 # Skunkworks Scouting App
-Temporary Dev Server Link: [https://skunkworks-scouting-webapp--skunkworks-scouting.us-central1.hosted.app/](url)
+[Temporary Dev Server Link](https://skunkworks-scouting-webapp--skunkworks-scouting.us-central1.hosted.app)
+
 
 Test User Username: test@test.com
 Test User Password: test123
