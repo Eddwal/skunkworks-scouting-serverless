@@ -56,7 +56,7 @@ This project is setup to use Firebase Local Emulators for development.
 
    You can also seed an event with randomly generated match scouting data sets, with example scripts existing for 2025 and 2026 in `scripts/`
 
-To run the dev environment you need to configure the .env file with a Blue Alliance API key, as well as the Firebase Client Email and Private Key
+To run the dev environment you need to configure the .env file with a Blue Alliance API key, as well as the Firebase Client Email and Private Key (see `.env.example`)
 
 ## Firebase & Architecture
 
