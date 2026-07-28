@@ -16,16 +16,16 @@ export function PitScoutCapabilities(props: FormComponentProps) {
       <div className="space-y-3">
         <SectionHeader title="Movement" />
         <div className="bg-muted/20 rounded-md px-3 border border-border/50">
-          <CapabilityRow label="Move in Auto" name="capabilities.movement.move" control={control} />
+          <CapabilityRow label="Move in Auto" name="capabilities.movement.move" control={control} hasCan={false} />
           <CapabilityRow label="Use Trench" name="capabilities.movement.trench" control={control} hasAuto={false} />
           <CapabilityRow label="Use Bump" name="capabilities.movement.bump" control={control} />
         </div>
       </div>
 
       <div className="space-y-3">
-        <SectionHeader title="Shooting" />
+        <SectionHeader title="Shooting" hasAuto={false} />
         <div className="bg-muted/20 rounded-md px-3 border border-border/50">
-          <CapabilityRow label="Can Shoot in Auto" name="capabilities.shooting.shoot" control={control} />
+          <CapabilityRow label="Can Shoot" name="capabilities.shooting.shoot" control={control} hasAuto={false} />
         </div>
       </div>
 

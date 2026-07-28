@@ -286,7 +286,7 @@ export default function TeamViewerClient({
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-4 text-center pt-2">
+                      <div className="grid grid-cols-3 gap-4 text-center pt-2">
                         <div>
                           <div className="text-xl font-semibold">{teamData.analytics.fouls.major}</div>
                           <div className="text-xs text-muted-foreground uppercase tracking-wider">Major Fouls</div>
@@ -294,6 +294,10 @@ export default function TeamViewerClient({
                         <div>
                           <div className="text-xl font-semibold">{teamData.analytics.fouls.minor}</div>
                           <div className="text-xs text-muted-foreground uppercase tracking-wider">Minor Fouls</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-semibold">{teamData.analytics.fouls.yellowCards || 0}</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider">Yellow Cards</div>
                         </div>
                       </div>
                       

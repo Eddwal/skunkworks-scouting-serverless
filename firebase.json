@@ -37,5 +37,8 @@
   "storage": {
     "rules": "storage.rules",
     "bucket": "skunkworks-scouting.firebasestorage.app"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }
