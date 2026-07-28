@@ -23,9 +23,9 @@ export function PitScoutCapabilities(props: FormComponentProps) {
       </div>
 
       <div className="space-y-3">
-        <SectionHeader title="Shooting" hasAuto={false} />
+        <SectionHeader title="Shooting" />
         <div className="bg-muted/20 rounded-md px-3 border border-border/50">
-          <CapabilityRow label="Can Shoot" name="capabilities.shooting.shoot" control={control} hasAuto={false} />
+          <CapabilityRow label="Can Shoot" name="capabilities.shooting.shoot" control={control} />
         </div>
       </div>
 

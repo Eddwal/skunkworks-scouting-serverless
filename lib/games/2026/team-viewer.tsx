@@ -40,11 +40,11 @@ export const CapabilitiesViewerComponent = ({ data }: { data: z.infer<typeof cap
           <h4 className="font-semibold text-primary">Shooting</h4>
           <div className="flex items-center space-x-4 w-32 justify-end text-[10px] font-semibold text-muted-foreground uppercase">
             <span className="w-12 text-center">Can</span>
-            <span className="w-12 text-center"></span>
+            <span className="w-12 text-center">In Auto</span>
           </div>
         </div>
         <div className="px-1">
-          <CapabilityViewerRow label="Can Shoot" can={data?.shooting?.shoot?.can} hasAuto={false} />
+          <CapabilityViewerRow label="Can Shoot" can={data?.shooting?.shoot?.can} auto={data?.shooting?.shoot?.auto} />
         </div>
       </div>
 

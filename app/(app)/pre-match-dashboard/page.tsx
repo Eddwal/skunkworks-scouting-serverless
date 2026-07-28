@@ -109,8 +109,9 @@ export default function PreMatchDashboard() {
             <p className="text-sm text-muted-foreground">Strategize and compare alliance capabilities.</p>
           </div>
           {activeEventId && matches.length > 0 && (
-            <div className="w-full md:w-[300px] shrink-0">
+            <div className="w-full md:w-auto shrink-0 ml-auto flex justify-end">
               <MatchSelect 
+                className="w-full md:w-[300px]"
                 matches={matches as any} 
                 value={selectedMatchId} 
                 onValueChange={(val) => {

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MatchSelect } from '@/components/ui/match-select';
+import { TeamSelect } from '@/components/ui/team-select';
 import { formatMatchName } from '@/lib/utils';
 import { ScoutingEvent } from '@/hooks/use-event';
 
@@ -55,20 +56,13 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams, s
           name="matchSetup.scheduledTeamId"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value as any} disabled={!watchEventId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a team" />
-              </SelectTrigger>
-              <SelectContent>
-                {scheduledTeams.length > 0 ? (
-                  scheduledTeams.map(team => {
-                    return <SelectItem key={team} value={team}>{team}</SelectItem>;
-                  })
-                ) : (
-                  <div className="p-2 text-sm text-muted-foreground">Select a match first</div>
-                )}
-              </SelectContent>
-            </Select>
+            <TeamSelect
+              teams={scheduledTeams}
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={!watchEventId}
+              placeholder={scheduledTeams.length === 0 ? 'Select a match first' : 'Select a team'}
+            />
           )}
         />
         {errors.matchSetup?.scheduledTeamId && <p className="text-sm text-destructive">{errors.matchSetup.scheduledTeamId.message as string}</p>}
@@ -92,16 +86,13 @@ export function SetupStep({ control, errors, activeEvent, watchEventId, teams, s
             name="matchSetup.substituteTeamId"
             control={control}
             render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value as any} disabled={!watchEventId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select substitute team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams.map(team => {
-                    return <SelectItem key={team} value={team}>{team}</SelectItem>;
-                  })}
-                </SelectContent>
-              </Select>
+              <TeamSelect
+                teams={teams}
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={!watchEventId}
+                placeholder="Select substitute team"
+              />
             )}
           />
         </div>

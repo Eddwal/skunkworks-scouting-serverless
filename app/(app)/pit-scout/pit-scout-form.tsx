@@ -15,7 +15,7 @@ import { getGameConfig, DEFAULT_YEAR } from '@/lib/games';
 import { SetupStep } from '@/components/pit-scouting/setup-step';
 import { PictureStep } from '@/components/pit-scouting/picture-step';
 import { ReviewStep } from '@/components/pit-scouting/review-step';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
 
 const baseSchema = z.object({
   eventId: z.string().min(1, "Event is required"),
