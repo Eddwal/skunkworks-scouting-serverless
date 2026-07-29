@@ -14,7 +14,6 @@ import { InfoIcon } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { formatMatchKey, getResolvableImageUrl, calculateDenseRank } from '@/lib/utils';
-import { AiSummaryCard } from './ai-summary-card';
 
 function StatBox({ label, value, rank }: { label: string, value: number | string, rank: number | string }) {
   return (
@@ -301,9 +300,6 @@ export default function TeamViewerClient({
 
             {/* Right Column */}
             <div className="flex flex-col space-y-6">
-
-              <AiSummaryCard teamData={teamData} />
-
               {teamData.analytics && (
                 <>
                   <Card className="shadow-sm h-fit">
