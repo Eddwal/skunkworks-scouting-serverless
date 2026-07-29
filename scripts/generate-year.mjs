@@ -299,6 +299,15 @@ export function Year${year}CapabilitiesBadge({ capabilities }: { capabilities?: 
 `;
     await fs.writeFile(path.join(baseDir, 'pre-match', 'capabilities-badge.tsx'), preMatchCapabilitiesContent);
 
+    // 7b. Create api.ts
+    const apiContent = `import { z } from 'zod';
+import { baseSchema } from '../schema';
+
+export const teamAppendSchema = baseSchema.catchall(z.any());
+export const matchAppendSchema = baseSchema.catchall(z.any());
+`;
+    await fs.writeFile(path.join(baseDir, 'api.ts'), apiContent);
+
     // 8. Create index.ts
     const indexContent = `import { GameConfig } from '../types';
 import { robotSchema, capabilitiesSchema } from './pit-scout/schema';
@@ -314,6 +323,7 @@ import { processAnalytics, calculateMatchPoints } from './analytics';
 import { calculateStandings } from './standings';
 import { Year${year}Stats } from './pre-match/stats';
 import { Year${year}CapabilitiesBadge } from './pre-match/capabilities-badge';
+import { teamAppendSchema, matchAppendSchema } from './api';
 
 export const Game${year}: GameConfig = {
   year: '${year}',
@@ -348,6 +358,10 @@ export const Game${year}: GameConfig = {
   },
   teamViewer: {
     getAdditionalHeaderStats,
+  },
+  api: {
+    teamAppendSchema,
+    matchAppendSchema,
   },
   calculateMatchPoints
 };

@@ -10,6 +10,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  recaptchaSiteKey: process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY,
 };
 
 export async function getAuthenticatedApp() {
@@ -24,8 +25,11 @@ export async function getAuthenticatedApp() {
     idToken = cookieStore.get('firebaseAuthToken')?.value;
   }
 
+  const appCheckToken = headersList.get('X-Firebase-AppCheck') || undefined;
+
   const firebaseServerApp = initializeServerApp(firebaseConfig, {
     authIdToken: idToken,
+    appCheckToken,
   });
 
   const auth = getAuth(firebaseServerApp);

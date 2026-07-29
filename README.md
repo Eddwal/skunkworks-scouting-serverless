@@ -104,6 +104,54 @@ This means that when a client requests one of these routes they will receive all
 
 Given the fact that scouting data is not hyper-sensitive and accessing it unauthenticated would take a significant amount of effort, I am going with the speed boost
 
+## External API
+
+The application provides endpoints for authenticated users to append data to Team or Match documents from outside the app (e.g., from OCR as in 2026). 
+These endpoints require a valid Firebase Auth ID Token sent in the `Authorization` header (`Bearer <token>`).
+
+For now example API endpoints exist that just append any data passed to them to a team or match document.
+### 1. Append Team Data
+**Endpoint**: `POST /api/team-data/append`
+
+Appends or merges data into a specific team's document for a given event.
+
+**Payload**:
+```json
+{
+  "eventId": "2026test",
+  "teamId": "frc1318",
+  "year": "2026",
+  "target": "analytics", 
+  "data": {
+    "myCustomMetric": 42
+  }
+}
+```
+*Note: `target` can be "analytics" to merge into the analytics sub-object, or left out / set to "base" to merge into the root team document.*
+
+### 2. Append Match Data
+**Endpoint**: `POST /api/match-data/append`
+
+Appends or merges data into a specific match document. (Match docs contain team entries keyed by teamId).
+
+**Payload**:
+```json
+{
+  "eventId": "2026test",
+  "matchId": "qm1",
+  "year": "2026",
+  "data": {
+    "frc1318": {
+      "autoRoute": "mid"
+    }
+  }
+}
+```
+
+### API Validation & Schemas
+Both endpoints optionally validate the `data` payload against year-specific Zod schemas. 
+You can define these in `lib/games/<year>/api.ts` (exported as `teamAppendSchema` and `matchAppendSchema`) to enforce what data external sources can append.
+
 ## Diagrams
 TODO: Make slightly higher quality...
 ###

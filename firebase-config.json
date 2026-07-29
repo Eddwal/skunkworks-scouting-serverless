@@ -1,0 +1,15 @@
+{
+  "version": "2",
+  "projectNumber": "802344339131",
+  "projectId": "skunkworks-scouting",
+  "appId": "1:802344339131:web:39984664f123f2505d0b9e",
+  "realtimeDatabaseInstanceUri": "",
+  "realtimeDatabaseUrl": "",
+  "storageBucket": "skunkworks-scouting.firebasestorage.app",
+  "locationId": "",
+  "apiKey": "AIzaSyCMzi1mc6I8SQIJEWPf6a-PyxXpl9ZjKDs",
+  "authDomain": "skunkworks-scouting.firebaseapp.com",
+  "messagingSenderId": "802344339131",
+  "measurementId": "",
+  "recaptchaSiteKey": "6LeeFWwtAAAAAMtPYEzd2AsFxq9Kb7STBgWDLTtm"
+}

@@ -4,7 +4,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
 // @ts-ignore
 import { getAuth, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-
 const params = new URL(location.href).searchParams;
 
 const app = initializeApp({
@@ -13,7 +12,6 @@ const app = initializeApp({
   projectId: params.get('projectId'),
 });
 
-// Create firebase auth instance just for SW
 const auth = getAuth(app);
 
 if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
@@ -23,6 +21,14 @@ if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.
     // Ignore if already connected
   }
 }
+
+let appCheckToken = null;
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'APP_CHECK_TOKEN') {
+    appCheckToken = event.data.token;
+  }
+});
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
@@ -40,10 +46,11 @@ self.addEventListener('fetch', (event) => {
 
       const user = auth.currentUser;
       const token = user ? await user.getIdToken() : null;
-
-      if (token) {
+      
+      if (token || appCheckToken) {
         const headers = new Headers(event.request.headers);
-        headers.append('Authorization', `Bearer ${token}`);
+        if (token) headers.append('Authorization', `Bearer ${token}`);
+        if (appCheckToken) headers.append('X-Firebase-AppCheck', appCheckToken);
 
         // Extract body for non-GET/HEAD requests to avoid Chrome stream cloning errors
         const hasBody = !['GET', 'HEAD'].includes(event.request.method);

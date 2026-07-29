@@ -16,7 +16,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 
-// Create a component for the actions to handle their own loading states
+/* 
+ * Component for each user in the users table to display their actions and handle their own state
+ */
 const ActionCell = ({ row, onPromote, onDemote, onDelete }: { 
   row: any, 
   onPromote: (uid: string) => Promise<void>,

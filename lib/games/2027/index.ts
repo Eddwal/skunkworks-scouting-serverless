@@ -12,6 +12,7 @@ import { processAnalytics, calculateMatchPoints } from './analytics';
 import { calculateStandings } from './standings';
 import { Year2027Stats } from './pre-match/stats';
 import { Year2027CapabilitiesBadge } from './pre-match/capabilities-badge';
+import { teamAppendSchema, matchAppendSchema } from './api';
 
 export const Game2027: GameConfig = {
   year: '2027',
@@ -46,6 +47,10 @@ export const Game2027: GameConfig = {
   },
   teamViewer: {
     getAdditionalHeaderStats,
+  },
+  api: {
+    teamAppendSchema,
+    matchAppendSchema,
   },
   calculateMatchPoints
 };

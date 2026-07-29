@@ -12,6 +12,7 @@ import { calculateStandings } from './standings';
 
 import { RebuiltStats } from './pre-match/stats';
 import { RebuiltCapabilitiesBadge } from './pre-match/capabilities-badge';
+import { teamAppendSchema, matchAppendSchema } from './api';
 
 export const Game2026: GameConfig = {
   year: '2026',
@@ -46,6 +47,10 @@ export const Game2026: GameConfig = {
       { key: "avgTeleopFuelScored", label: "Teleop Fuel" },
       { key: "avgOverallFuelScored", label: "Total Fuel" },
     ],
+  },
+  api: {
+    teamAppendSchema,
+    matchAppendSchema,
   },
   calculateMatchPoints
 };

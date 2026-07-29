@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 import { getAuthenticatedApp } from '@/lib/firebase/firebase-server';
 
-async function verifyAdmin() {
+export async function verifyAdmin() {
   const { currentUser } = await getAuthenticatedApp();
   
   if (!currentUser) {

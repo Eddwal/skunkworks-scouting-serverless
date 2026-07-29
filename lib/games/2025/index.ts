@@ -12,6 +12,7 @@ import { processAnalytics } from './analytics';
 
 import { ReefscapeStats } from './pre-match/stats';
 import { ReefscapeCapabilitiesBadge } from './pre-match/capabilities-badge';
+import { teamAppendSchema, matchAppendSchema } from './api';
 
 export const Game2025: GameConfig = {
   year: '2025',
@@ -49,5 +50,9 @@ export const Game2025: GameConfig = {
   },
   teamViewer: {
     getAdditionalHeaderStats,
+  },
+  api: {
+    teamAppendSchema,
+    matchAppendSchema,
   }
 };

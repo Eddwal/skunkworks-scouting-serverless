@@ -9,6 +9,11 @@ export interface FormComponentProps {
   watch: UseFormWatch<any>;
 }
 
+export interface ApiConfig {
+  teamAppendSchema?: z.ZodType<any, any, any>;
+  matchAppendSchema?: z.ZodType<any, any, any>;
+}
+
 export interface PitScoutConfig {
   robotSchema: z.ZodObject<any>;
   capabilitiesSchema: z.ZodObject<any>;
@@ -80,4 +85,5 @@ export interface GameConfig {
   preMatch?: PreMatchConfig;
   teamViewer?: TeamViewerConfig;
   calculateMatchPoints?: (matchData: any) => MatchPoints;
+  api?: ApiConfig;
 }
