@@ -56,15 +56,19 @@ self.addEventListener('fetch', (event) => {
         const hasBody = !['GET', 'HEAD'].includes(event.request.method);
         const body = hasBody ? await event.request.clone().blob() : undefined;
 
-        const newRequest = new Request(event.request.url, {
+        const requestInit = {
           method: event.request.method,
           headers,
-          body,
           credentials: event.request.credentials,
           cache: event.request.cache,
           redirect: event.request.redirect,
           referrer: event.request.referrer,
-        });
+        };
+        
+        if (hasBody) requestInit.body = body;
+        requestInit.mode = event.request.mode === 'navigate' ? 'same-origin' : event.request.mode;
+
+        const newRequest = new Request(event.request.url, requestInit);
         
         return fetch(newRequest);
       }
