@@ -36,11 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const idTokenResult = await currentUser.getIdTokenResult();
           setClaims(idTokenResult.claims);
-          // Set cookie as fallback for Service Worker race conditions
+          // Set cookie as fallback for Service Worker race conditions or when offline
           document.cookie = `firebaseAuthToken=${idTokenResult.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         } catch (error) {
-          console.error("Error fetching claims", error);
-          setClaims({});
+          console.warn("Could not fetch claims (likely offline). Keeping existing state.", error);
+          // Don't clear claims/cookie here so the user stays logged in while offline.
         }
       } else {
         document.cookie = `firebaseAuthToken=; path=/; max-age=0`;

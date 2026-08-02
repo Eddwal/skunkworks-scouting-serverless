@@ -29,6 +29,19 @@ export const metadata = {
   formatDetection: {
     telephone: false,
   },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/logo_192.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: [
+      { url: "/logo_192.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo_192.png", type: "image/png", sizes: "192x192" },
+    ],
+  },
 };
 
 export const viewport = {

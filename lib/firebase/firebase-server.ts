@@ -25,7 +25,13 @@ export async function getAuthenticatedApp() {
     idToken = cookieStore.get('firebaseAuthToken')?.value;
   }
 
-  const appCheckToken = headersList.get('X-Firebase-AppCheck') || undefined;
+  let appCheckToken = headersList.get('X-Firebase-AppCheck') || undefined;
+  
+  if (!appCheckToken) {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    appCheckToken = cookieStore.get('firebaseAppCheckToken')?.value;
+  }
 
   const firebaseServerApp = initializeServerApp(firebaseConfig, {
     authIdToken: idToken,
