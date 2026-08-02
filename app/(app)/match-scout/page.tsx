@@ -1,6 +1,7 @@
 import { MatchScoutForm } from './match-scout-form';
 import { SavedQRCodes } from './saved-qr-codes';
 import { ScanQR } from './scan-qr';
+import { LeaderboardModal } from '@/components/match-scouting/leaderboard-modal';
 
 export const metadata = {
   title: 'Match Scouting',
@@ -12,7 +13,8 @@ export default function MatchScoutPage() {
     <div className="container mx-auto p-4 max-w-2xl mt-8 space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h1 className="text-3xl font-bold">Match Scouting</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <LeaderboardModal />
           <ScanQR />
           <SavedQRCodes />
         </div>

@@ -2,6 +2,7 @@
 
 import 'server-only';
 import { adminDb, adminAuth } from '@/lib/firebase/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { getGameConfig } from '@/lib/games';
 import { MatchData } from '@/lib/firebase/converters';
 
@@ -105,12 +106,24 @@ export async function uploadMatchScoutData(data: MatchData, clientToken?: string
 
     // Update the team document with the new analytics
     transaction.set(teamDocRef, { analytics: finalAnalytics }, { merge: true });
+
+    // Update scout leaderboard stats
+    if (data.scoutId && data.scoutName) {
+      const scoutStatRef = adminDb.collection('events').doc(eventId).collection('scoutStats').doc(data.scoutId);
+      transaction.set(scoutStatRef, {
+        name: data.scoutName,
+        matchCount: FieldValue.increment(1),
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    }
   });
   
   // Trigger cache invalidation for the Team Viewer and Standings dashboard
   try {
     const { revalidateDashboards } = await import('@/app/actions/revalidate');
     await revalidateDashboards();
+    const { revalidateTag } = await import('next/cache');
+    revalidateTag(`scoutStats-${eventId}`, 'max');
   } catch (error) {
     console.error('Failed to trigger revalidation:', error);
   }

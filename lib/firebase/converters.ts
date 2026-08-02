@@ -38,6 +38,8 @@ export const getTeamDataSchema = (gameConfig: GameConfig) => {
     photoUrl: z.string().url().optional().or(z.literal('')),
     year: z.string().optional(),
     updatedAt: z.string().optional(),
+    scoutId: z.string().optional(),
+    scoutName: z.string().optional(),
     robot: gameConfig.pitScout.robotSchema.optional(),
     capabilities: gameConfig.pitScout.capabilitiesSchema.optional(),
     analytics: gameConfig.matchScout?.analyticsSchema
@@ -82,6 +84,8 @@ export const getMatchDataSchema = (gameConfig: GameConfig) => {
     teamId: z.string().optional(),
     year: z.string().optional(),
     updatedAt: z.string().optional(),
+    scoutId: z.string().optional(),
+    scoutName: z.string().optional(),
     matchSetup: baseMatchSetupSchema.optional(),
     auto: gameConfig.matchScout?.autoSchema.optional(),
     teleop: gameConfig.matchScout?.teleopSchema.optional(),

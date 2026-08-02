@@ -5,6 +5,7 @@ import React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvent } from '@/hooks/use-event';
+import { useScouts } from '@/hooks/use-scouts';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -32,6 +33,7 @@ import { APPS } from '@/lib/apps';
 export function GlobalNav() {
   const { user, claims, signOut } = useAuth();
   const { events, activeEvent, setActiveEvent } = useEvent();
+  const { scouts, activeScout, setActiveScout } = useScouts();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -78,6 +80,32 @@ export function GlobalNav() {
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Scout Selector */}
+        <Select 
+          value={activeScout?.id || ''} 
+          onValueChange={(value) => { if (value) setActiveScout(value); }}
+        >
+          <SelectTrigger className="h-8 w-[120px] md:w-[160px] border-none bg-muted/50 hover:bg-muted focus:ring-0 focus:ring-offset-0">
+            <SelectValue placeholder="Select Scout">
+              {activeScout?.name}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {scouts.length === 0 ? (
+              <div className="p-2 text-sm text-muted-foreground text-center">No scouts found</div>
+            ) : (
+              <SelectGroup>
+                <SelectLabel>Scouts</SelectLabel>
+                {scouts.map(scout => (
+                  <SelectItem key={scout.id} value={scout.id}>
+                    {scout.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            )}
+          </SelectContent>
+        </Select>
+
         {/* Event Selector */}
         <Select 
           value={activeEvent?.id || ''} 

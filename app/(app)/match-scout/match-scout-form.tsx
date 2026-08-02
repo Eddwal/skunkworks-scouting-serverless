@@ -13,6 +13,7 @@ import { db } from '@/lib/firebase/firebase-client';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { useAuth } from '@/hooks/use-auth';
 import { useEvent } from '@/hooks/use-event';
+import { useScouts } from '@/hooks/use-scouts';
 import { getGameConfig, DEFAULT_YEAR } from '@/lib/games';
 import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
 import { formatMatchName } from '@/lib/utils';
@@ -31,6 +32,7 @@ function MatchScoutFormContent() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { events, activeEvent } = useEvent();
+  const { activeScout } = useScouts();
   const [matches, setMatches] = useState<any[]>([]);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [currentQRData, setCurrentQRData] = useState('');
@@ -95,6 +97,23 @@ function MatchScoutFormContent() {
     return () => unsubscribe();
   }, [activeEvent?.id]);
 
+  const handleResetForm = () => {
+    reset({
+      eventId: activeEvent?.id || '',
+      matchSetup: {
+        matchKey: '',
+        scheduledTeamId: '',
+        isSubstitute: false,
+        substituteTeamId: '',
+        noShow: false,
+      },
+      auto: {},
+      teleop: {},
+      endgame: {},
+    });
+    setStep(1);
+  };
+
   const handleNext = async () => {
     let fieldsToValidate: any[] = [];
     if (step === 1) fieldsToValidate = ['eventId', 'matchSetup'];
@@ -118,6 +137,11 @@ function MatchScoutFormContent() {
       return;
     }
     
+    if (!activeScout) {
+      toast.error("Please select your name as the scout in the top navigation bar before submitting.");
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const activeTeamId = data.matchSetup.isSubstitute && data.matchSetup.substituteTeamId 
@@ -129,7 +153,9 @@ function MatchScoutFormContent() {
       const uploadData = {
         ...data,
         teamId: dbTeamId,
-        year
+        year,
+        scoutId: activeScout.id,
+        scoutName: activeScout.name
       };
       
       const { uploadMatchScoutData } = await import('@/app/actions/upload-action');
@@ -137,8 +163,7 @@ function MatchScoutFormContent() {
       await uploadMatchScoutData(uploadData, token);
       
       toast.success("Match scouting data saved successfully!");
-      reset();
-      setStep(1);
+      handleResetForm();
     } catch (err: any) {
       toast.error(`Error saving data: ${err.message}`);
     } finally {
@@ -157,6 +182,11 @@ function MatchScoutFormContent() {
       toast.error("Please select a team first");
       return;
     }
+    
+    if (!activeScout) {
+      toast.error("Please select your name as the scout in the top navigation bar before generating a QR code.");
+      return;
+    }
       
     const dbTeamId = activeTeamId;
     
@@ -164,7 +194,9 @@ function MatchScoutFormContent() {
       ...data,
       teamId: dbTeamId,
       year,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      scoutId: activeScout.id,
+      scoutName: activeScout.name
     };
     
     const qrString = JSON.stringify(exportData);
@@ -305,8 +337,7 @@ function MatchScoutFormContent() {
                 className="w-full mt-2" 
                 onClick={() => {
                   setQrDialogOpen(false);
-                  reset();
-                  setStep(1);
+                  handleResetForm();
                 }}
               >
                 Done (Start New Match)

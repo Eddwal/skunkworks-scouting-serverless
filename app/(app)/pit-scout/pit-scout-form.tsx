@@ -11,6 +11,7 @@ import { db, storage } from '@/lib/firebase/firebase-client';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useEvent } from '@/hooks/use-event';
+import { useScouts } from '@/hooks/use-scouts';
 import { getGameConfig, DEFAULT_YEAR } from '@/lib/games';
 import { SetupStep } from '@/components/pit-scouting/setup-step';
 import { PictureStep } from '@/components/pit-scouting/picture-step';
@@ -29,6 +30,7 @@ function PitScoutFormContent() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const { events, activeEvent } = useEvent();
+  const { activeScout } = useScouts();
   
   const year = activeEvent?.id ? activeEvent.id.substring(0, 4) : DEFAULT_YEAR;
   const gameConfig = getGameConfig(year);
@@ -83,6 +85,11 @@ function PitScoutFormContent() {
       return;
     }
     
+    if (!activeScout) {
+      toast.error("Please select your name as the scout in the top navigation bar before submitting.");
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const dbTeamId = data.teamId;
@@ -102,7 +109,9 @@ function PitScoutFormContent() {
         ...data,
         photoUrl: uploadedPhotoUrl,
         year,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        scoutId: activeScout.id,
+        scoutName: activeScout.name
       }, { merge: true });
       
       try {

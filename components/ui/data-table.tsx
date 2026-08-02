@@ -28,17 +28,20 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchKey?: string;
+  renderToolbar?: (table: import('@tanstack/react-table').Table<TData>) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
+  renderToolbar,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data,
@@ -49,16 +52,18 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
+      rowSelection,
     },
   });
 
   return (
-    <div>
-      {searchKey && (
-        <div className="flex items-center py-4">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        {searchKey ? (
           <Input
             placeholder="Search..."
             value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
@@ -67,8 +72,14 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-        </div>
-      )}
+        ) : <div />}
+        
+        {renderToolbar && (
+          <div className="flex items-center gap-2">
+            {renderToolbar(table)}
+          </div>
+        )}
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>

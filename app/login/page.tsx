@@ -27,6 +27,8 @@ export default function LoginPage() {
           src="/LoginSplash.JPG"
           alt="Image"
           fill
+          priority
+          sizes="50vw"
           className="absolute inset-0 h-full w-full object-cover"
         />
       </div>
