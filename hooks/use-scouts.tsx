@@ -22,7 +22,6 @@ export function ScoutsProvider({
   children: React.ReactNode;
   initialScouts?: ScoutData[];
 }) {
-  const [scouts] = useState<ScoutData[]>(initialScouts);
   const [activeScoutId, setActiveScoutId] = useState<string | null>(null);
 
   // Sync state on load
@@ -33,10 +32,10 @@ export function ScoutsProvider({
     }
   }, []);
 
-  const activeScout = scouts.find(s => s.id === activeScoutId) || null;
+  const activeScout = initialScouts.find(s => s.id === activeScoutId) || null;
 
   const setActiveScout = (scoutId: string) => {
-    const scoutObj = scouts.find(s => s.id === scoutId) || null;
+    const scoutObj = initialScouts.find(s => s.id === scoutId) || null;
     if (scoutObj) {
       setActiveScoutId(scoutId);
       localStorage.setItem('skunkworks_active_scout', scoutId);
@@ -47,7 +46,7 @@ export function ScoutsProvider({
   };
 
   return (
-    <ScoutsContext.Provider value={{ scouts, activeScout, setActiveScout }}>
+    <ScoutsContext.Provider value={{ scouts: initialScouts, activeScout, setActiveScout }}>
       {children}
     </ScoutsContext.Provider>
   );

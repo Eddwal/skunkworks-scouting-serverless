@@ -1,3 +1,4 @@
+/// <reference lib="webworker" />
 import { defaultCache } from "@serwist/next/worker";
 import type { SerwistGlobalConfig } from "serwist";
 import { Serwist, NetworkFirst, ExpirationPlugin } from "serwist";

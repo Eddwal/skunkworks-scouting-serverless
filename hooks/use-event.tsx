@@ -35,8 +35,6 @@ export function EventProvider({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   
-  const [events] = useState<ScoutingEvent[]>(initialEvents);
-  
   const eventIdParam = searchParams.get('event');
   
   const [activeEvent, setActiveEventState] = useState<ScoutingEvent | null>(null);
@@ -48,17 +46,17 @@ export function EventProvider({
     // If no event in URL, try to get from localStorage
     if (!currentEventId) {
       const savedEventId = localStorage.getItem('skunkworks_active_event');
-      if (savedEventId && events.find(e => e.id === savedEventId)) {
+      if (savedEventId && initialEvents.find(e => e.id === savedEventId)) {
         currentEventId = savedEventId;
-      } else if (events.length > 0) {
+      } else if (initialEvents.length > 0) {
         // Fallback to first event if none in localstorage
-        currentEventId = events[0].id;
+        currentEventId = initialEvents[0].id;
       }
     }
     
     // Update active state
     if (currentEventId) {
-      const eventObj = events.find(e => e.id === currentEventId) || null;
+      const eventObj = initialEvents.find(e => e.id === currentEventId) || null;
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveEventState(eventObj);
       if (eventObj) {
@@ -73,7 +71,7 @@ export function EventProvider({
         router.replace(`${pathname}?${params.toString()}`);
       }
     }
-  }, [eventIdParam, events, pathname, router, searchParams]);
+  }, [eventIdParam, initialEvents, pathname, router, searchParams]);
 
   const setActiveEvent = (eventId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -84,7 +82,7 @@ export function EventProvider({
   };
 
   return (
-    <EventContext.Provider value={{ events, activeEvent, setActiveEvent }}>
+    <EventContext.Provider value={{ events: initialEvents, activeEvent, setActiveEvent }}>
       {children}
     </EventContext.Provider>
   );
